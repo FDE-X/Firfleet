@@ -1536,6 +1536,22 @@ function autoSaveWFBRow(day, year, bulan){
   _wfbSaveTimers[day] = setTimeout(()=>{ saveWFBRow(day, year, bulan); }, 800);
 }
 
+// Called when header fields (Nama, Kem, Bahagian) change — re-save all filled rows
+function triggerWFBHeaderSave(){
+  const bulanInput = document.getElementById('wfbBulan');
+  if(!bulanInput || !bulanInput.value) return;
+  const parts = bulanInput.value.split('-');
+  const year  = parseInt(parts[0]);
+  const bulan = parseInt(parts[1]);
+  // Find all days that have at least one time entry and re-save them
+  document.querySelectorAll('.wfb-masuk').forEach(el => {
+    if(el.value){
+      const day = parseInt(el.getAttribute('data-day'));
+      autoSaveWFBRow(day, year, bulan);
+    }
+  });
+}
+
 async function saveWFBRow(day, year, bulan){
   if(!currentUser || !currentUser.id) return;
   // Collect all inputs for this day
