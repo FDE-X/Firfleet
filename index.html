@@ -89,12 +89,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:ce
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;}
 .stat-card{background:var(--card);border:1px solid rgba(108,99,255,0.2);border-radius:12px;padding:1.2rem;text-align:center;transition:all 0.3s;cursor:default;}
 .stat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(108,99,255,0.2);}
-.stat-number{font-family:var(--font-heading);font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-number{font-family:var(--font-heading);font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .stat-label{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.25rem;}
 
 /* PAGE HEADERS */
 .page-header{margin-bottom:2rem;}
-.page-title{font-family:var(--font-heading);font-size:clamp(1.5rem,3vw,2rem);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;}
+.page-title{font-family:var(--font-heading);font-size:clamp(1.5rem,3vw,2rem);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;}
 .page-subtitle{font-family:var(--font-ui);color:var(--muted);font-size:0.9rem;}
 .page-subtitle span{color:var(--accent);}
 
@@ -139,18 +139,18 @@ tr.ot td{background:rgba(255,215,0,0.06);}
 .form-group input.highlight-ot{border-color:var(--gold);background:rgba(255,215,0,0.06);}
 
 /* CLOCK */
-.clock-display{font-family:var(--font-heading);font-size:2.5rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+.clock-display{font-family:var(--font-heading);font-size:2.5rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
 .clock-period{font-family:var(--font-ui);font-size:1rem;color:var(--gold);text-align:center;margin-top:0.25rem;}
 .clock-date{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);text-align:center;}
 
 /* LOGIN SCREEN */
 .login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--darker);}
-.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,0.2),transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(255,101,132,0.1),transparent 50%);animation:bgPulse 6s ease-in-out infinite;}
-.login-card{position:relative;background:rgba(17,17,40,0.95);border:1px solid rgba(108,99,255,0.3);border-radius:24px;padding:3rem 2.5rem;width:min(420px,90vw);text-align:center;backdrop-filter:blur(40px);box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(108,99,255,0.1);}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,0.2),transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(255,101,132,0.1),transparent 50%);animation:bgPulse 6s ease-in-out infinite;pointer-events:none;}
+.login-card{position:relative;z-index:1;background:rgba(17,17,40,0.95);border:1px solid rgba(108,99,255,0.3);border-radius:24px;padding:3rem 2.5rem;width:min(420px,90vw);text-align:center;backdrop-filter:blur(40px);box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(108,99,255,0.1);}
 .login-logos{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.5rem;}
 .login-logo{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.08);border:2px solid rgba(108,99,255,0.4);display:flex;align-items:center;justify-content:center;font-size:1.8rem;}
 .login-logo img,.nav-logo-item img{width:100%;height:100%;object-fit:contain;border-radius:50%;}
-.login-title{font-family:var(--font-heading);font-size:1.1rem;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;letter-spacing:0.05em;}
+.login-title{font-family:var(--font-heading);font-size:1.1rem;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;letter-spacing:0.05em;}
 .login-subtitle{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);margin-bottom:2rem;}
 .btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:0.75rem;padding:0.9rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:var(--text);font-family:var(--font-ui);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;}
 .btn-google:hover{background:rgba(255,255,255,0.1);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(67,232,216,0.2);}
@@ -161,7 +161,7 @@ tr.ot td{background:rgba(255,215,0,0.06);}
 .dashboard-hero{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(67,232,216,0.08));border:1px solid rgba(108,99,255,0.2);border-radius:20px;padding:2rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;position:relative;overflow:hidden;}
 .dashboard-hero::before{content:'';position:absolute;right:-50px;top:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(108,99,255,0.1),transparent 70%);animation:heroGlow 4s ease-in-out infinite;}
 @keyframes heroGlow{0%,100%{opacity:0.5;transform:scale(1);}50%{opacity:1;transform:scale(1.1);}}
-.hero-greeting{font-family:var(--font-heading);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:900;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-greeting{font-family:var(--font-heading);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:900;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .hero-role{font-family:var(--font-ui);font-size:0.85rem;color:var(--gold);margin-top:0.25rem;}
 
 /* WFB TIMECARD */
@@ -351,6 +351,10 @@ tr.ot td{background:rgba(255,215,0,0.06);}
       <div class="user-avatar" id="userAvatar">?</div>
       <div class="user-name" id="userName">...</div>
     </div>
+    <button id="logoutBtn" class="btn btn-danger btn-sm" onclick="signOut()" title="Log Keluar" style="display:flex;align-items:center;gap:0.4rem;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Log Keluar
+    </button>
   </div>
 </nav>
 
@@ -980,9 +984,10 @@ let baserowWebSocket = null;
 const FUEL_RATE = 2.05;
 const months = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 
+
 let currentLang = 'ms';
 let isLoggedIn = false;
-let currentUser = {name:'Ahmad Firdaus',email:'ahmad@jpvs.gov.my',role:'superadmin',initials:'AF'};
+let currentUser = null;
 let travelData = [];
 let enfData = [];
 let uploadedFiles = {minyak:[],odo:[],kes:[]};
@@ -1049,58 +1054,120 @@ function getInitials(name){
 }
 
 async function handleSupabaseAuth(){
-  if(!supabase) return;
-  const { data: urlData, error: urlError } = await supabase.auth.getSessionFromUrl({ storeSession: true });
-  if(urlError && !urlError.message.includes('No session')) console.error('Supabase callback error', urlError);
-  const sessionData = await supabase.auth.getSession();
-  const session = sessionData.data?.session || urlData?.session;
+  if(!supabase){
+    // Supabase not configured — block access, show error on login card
+    const loginFooter = document.querySelector('.login-footer');
+    if(loginFooter){
+      loginFooter.innerHTML = '<span style="color:var(--danger);font-weight:700;">⚠ Sistem tidak dikonfigurasi. Hubungi pentadbir.</span>';
+    }
+    const googleBtn = document.querySelector('.btn-google');
+    if(googleBtn){ googleBtn.disabled = true; googleBtn.style.opacity = '0.4'; googleBtn.style.cursor = 'not-allowed'; }
+    return;
+  }
+
+  // Supabase v2: handle OAuth redirect via URL hash (access_token in hash fragment)
+  // getSession() automatically picks up the session from the URL hash after redirect
+  let session = null;
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if(error) console.error('getSession error:', error);
+    session = data?.session;
+  } catch(e) {
+    console.error('Auth session error:', e);
+  }
+
   if(session && session.user){
+    // Check provider — Supabase v2 stores it in app_metadata.provider or providers array
+    const provider = session.user.app_metadata?.provider ||
+                     (session.user.app_metadata?.providers || [])[0];
+    if(provider && provider !== 'google'){
+      showLoginError('Hanya log masuk Google dibenarkan.');
+      await supabase.auth.signOut();
+      return;
+    }
     currentUser = {
-      name: session.user.user_metadata.full_name || session.user.email || 'JPVS User',
+      name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email || 'JPVS User',
       email: session.user.email || '',
       role: session.user.email?.endsWith('@jpvs.gov.my') ? 'superadmin' : 'user',
-      initials: getInitials(session.user.user_metadata.full_name || session.user.email)
+      initials: getInitials(session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email),
+      avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null
     };
     doLoginSuccess();
+  }
+  // If no session, stay on login screen — user must click Google login
+}
+
+function showLoginError(msg){
+  const loginFooter = document.querySelector('.login-footer');
+  if(loginFooter){
+    loginFooter.innerHTML = `<span style="color:var(--danger);font-weight:700;">⚠ ${msg}</span>`;
   }
 }
 
 async function doLogin(){
   playSound('click');
   if(!supabase){
-    showToast('Supabase tidak dikonfig. Menyambung mod demo...');
-    setTimeout(() => { doLoginSuccess(); loadSampleData(); }, 400);
+    showLoginError('Sistem tidak dikonfigurasi. Hubungi pentadbir.');
     return;
   }
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+  const googleBtn = document.querySelector('.btn-google');
+  if(googleBtn){ googleBtn.disabled = true; googleBtn.textContent = 'Menghubungi Google...'; }
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + window.location.pathname }
+  });
   if(error){
     console.error('Google sign-in failed', error);
-    showToast('Log masuk Google gagal. Sila semak konsol.');
+    showLoginError('Log masuk Google gagal: ' + error.message);
+    if(googleBtn){ googleBtn.disabled = false; googleBtn.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log Masuk dengan Google'; }
   }
 }
 
+
 function doLoginSuccess(){
+  // Guard: must have a real currentUser from Google OAuth
+  if(!currentUser || !currentUser.email){
+    showLoginError('Sesi tidak sah. Sila log masuk semula.');
+    return;
+  }
   playSound('login');
+  document.getElementById('loginScreen').style.transition='opacity 0.4s';
   document.getElementById('loginScreen').style.opacity='0';
   setTimeout(()=>{
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('appShell').style.display='block';
     isLoggedIn=true;
-    document.getElementById('userAvatar').textContent=currentUser.initials;
-    document.getElementById('userName').textContent=currentUser.name.split(' ')[0];
-    document.getElementById('userRoleDisplay').textContent=currentUser.role==='superadmin'?'Super Admin':'Pegawai Penguatkuasa';
-    if(currentUser.role!=='superadmin')document.getElementById('adminNavItem').style.display='none';
+    // Update avatar: use Google profile photo if available
+    const avatarEl = document.getElementById('userAvatar');
+    if(currentUser.avatar){
+      avatarEl.innerHTML = `<img src="${currentUser.avatar}" alt="${currentUser.initials}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    } else {
+      avatarEl.textContent = currentUser.initials;
+    }
+    document.getElementById('userName').textContent = currentUser.name.split(' ')[0];
+    const roleEl = document.getElementById('userRoleDisplay');
+    if(roleEl) roleEl.textContent = currentUser.role==='superadmin' ? 'Super Admin' : 'Pegawai Penguatkuasa';
+    const adminNav = document.getElementById('adminNavItem');
+    if(adminNav && currentUser.role!=='superadmin') adminNav.style.display='none';
     renderWFB();renderAdminPanel();renderCharts();updateAnnDisplay();updateStats();triggerReveal();
+    loadSampleData();
   },400);
-  document.getElementById('loginScreen').style.transition='opacity 0.4s';
 }
 
-function signOut(){
+
+async function signOut(){
   if(supabase){
-    supabase.auth.signOut();
+    await supabase.auth.signOut();
   }
+  isLoggedIn = false;
+  currentUser = null;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginScreen').style.opacity = '1';
+  // Reset login button state
+  const googleBtn = document.querySelector('.btn-google');
+  if(googleBtn){ googleBtn.disabled = false; googleBtn.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Log Masuk dengan Google'; }
   showToast('Log keluar berjaya');
-  window.location.reload();
 }
 
 function initParticles(){
@@ -1124,12 +1191,20 @@ function updateClock(){
   const dateEl=document.getElementById('dashDate');
   if(dateEl){const days=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];dateEl.textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;}
   const greet=document.getElementById('greetingText');
-  if(greet){let g=t(h<12?'greeting.pagi':h<13?'greeting.tengah':h<18?'greeting.petang':'greeting.malam');greet.textContent=`${g}, ${currentUser.name.split(' ')[0]}`;}
+  if(greet && currentUser){let g=t(h<12?'greeting.pagi':h<13?'greeting.tengah':h<18?'greeting.petang':'greeting.malam');greet.textContent=`${g}, ${currentUser.name.split(' ')[0]}`;}
   const wfbMonth=document.getElementById('wfbMonth');
   if(wfbMonth)wfbMonth.textContent=`${months[now.getMonth()]} ${now.getFullYear()}`;
 }
 
+
 function showSection(id,el){
+  if (!isLoggedIn) {
+    showToast('Sila log masuk untuk akses sistem.');
+    document.getElementById('appShell').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginScreen').style.opacity = '1';
+    return;
+  }
   playSound('whoosh');
   const overlay=document.getElementById('transOverlay');
   overlay.classList.add('animating');
@@ -1143,7 +1218,11 @@ function showSection(id,el){
   if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');
 }
 
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+function toggleSidebar(){
+  if (!isLoggedIn) return;
+  document.getElementById('sidebar').classList.toggle('open');
+}
 
 function toggleLang(){
   currentLang=currentLang==='ms'?'en':'ms';
@@ -1221,7 +1300,7 @@ function saveTravelLog(){
     pemandu:document.getElementById('tl-pemandu').value,
     tujuan:document.getElementById('tl-tujuan').value,
     pelulus:document.getElementById('tl-pelulus').value,
-    pengguna:document.getElementById('tl-pengguna').value||currentUser.name,
+    pengguna:document.getElementById('tl-pengguna').value||(currentUser?currentUser.name:''),
     odomula:parseFloat(document.getElementById('tl-odomula').value)||0,
     odoakhir:parseFloat(document.getElementById('tl-odoakhir').value)||0,
     jarak:parseFloat(document.getElementById('tl-jarak').value)||0,
@@ -1338,7 +1417,7 @@ function saveAnnouncement(){
 function renderAdminPanel(){
   const users=[{name:'Ahmad Firdaus',email:'ahmad@jpvs.gov.my',role:'superadmin',initials:'AF'},{name:'Siti Norizan',email:'siti@jpvs.gov.my',role:'user',initials:'SN'},{name:'Mohd Hafiz',email:'hafiz@jpvs.gov.my',role:'user',initials:'MH'}];
   const colors=['#6C63FF','#FF6584','#43E8D8','#FFD700'];
-  const makeUserRow=(u,i,canDelete)=>`<div class="user-row"><div class="user-avatar-sm" style="background:linear-gradient(135deg,${colors[i%colors.length]},${colors[(i+1)%colors.length]});">${u.initials}</div><div class="user-info"><div class="user-info-name">${u.name}</div><div class="user-info-email">${u.email}</div></div>${canDelete&&currentUser.role==='superadmin'?`<button class="btn btn-danger btn-sm" onclick="removeUser(${i})">Buang</button>`:''}</div>`;
+  const makeUserRow=(u,i,canDelete)=>`<div class="user-row"><div class="user-avatar-sm" style="background:linear-gradient(135deg,${colors[i%colors.length]},${colors[(i+1)%colors.length]});">${u.initials}</div><div class="user-info"><div class="user-info-name">${u.name}</div><div class="user-info-email">${u.email}</div></div>${canDelete&&currentUser&&currentUser.role==='superadmin'?`<button class="btn btn-danger btn-sm" onclick="removeUser(${i})">Buang</button>`:''}</div>`;
   const adminUsers=users.filter(u=>u.role==='superadmin');
   const normalUsers=users.filter(u=>u.role==='user');
   document.getElementById('userListAdmin').innerHTML=normalUsers.map((u,i)=>makeUserRow(u,i,true)).join('');
@@ -1470,6 +1549,7 @@ function showToast(msg){
 }
 
 function toggleProfileMenu(){
+  if(!currentUser) return;
   showToast('Profil: '+currentUser.name+' ('+currentUser.role+')');
 }
 
@@ -1482,19 +1562,51 @@ function loadSampleData(){
   ['Jun'].forEach(b=>{if(![...bulanSel.options].find(o=>o.value===b)){const o=document.createElement('option');o.value=b;o.textContent=b;bulanSel.appendChild(o);}});
 }
 
+
 // INIT
 initParticles();
 setInterval(updateClock,1000);
 updateClock();
 if(isBaserowConfigured){initBaserowSync();}
-handleSupabaseAuth().then(()=>{
-  if(!isLoggedIn){
-    // Demo fallback when Supabase is not configured.
-    if(!supabase){
-      setTimeout(()=>{ doLoginSuccess(); loadSampleData(); },1200);
+
+// Always start on login screen — no auto-login
+document.getElementById('appShell').style.display = 'none';
+document.getElementById('loginScreen').style.display = 'flex';
+document.getElementById('loginScreen').style.opacity = '1';
+
+// Supabase v2: onAuthStateChange fires on page load with INITIAL_SESSION
+// and after OAuth redirect with SIGNED_IN — this is the primary auth handler
+if(supabase){
+  supabase.auth.onAuthStateChange((event, session) => {
+    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
+      if(isLoggedIn) return; // already logged in, skip
+      const provider = session.user.app_metadata?.provider ||
+                       (session.user.app_metadata?.providers || [])[0];
+      if(provider && provider !== 'google'){
+        showLoginError('Hanya log masuk Google dibenarkan.');
+        supabase.auth.signOut();
+        return;
+      }
+      currentUser = {
+        name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email || 'JPVS User',
+        email: session.user.email || '',
+        role: session.user.email?.endsWith('@jpvs.gov.my') ? 'superadmin' : 'user',
+        initials: getInitials(session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email),
+        avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null
+      };
+      doLoginSuccess();
+    } else if(event === 'SIGNED_OUT'){
+      isLoggedIn = false;
+      currentUser = null;
+      document.getElementById('appShell').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('loginScreen').style.opacity = '1';
     }
-  }
-});
+  });
+} else {
+  // handleSupabaseAuth will show the "not configured" error
+  handleSupabaseAuth();
+}
 </script>
 </body>
 </html>
