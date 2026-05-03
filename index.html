@@ -772,25 +772,19 @@ tr.ot td{background:rgba(255,215,0,0.06);}
 
 <!-- Supabase loaded just before main script to guarantee window.supabase is available -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-<!-- Fallback CDN if jsDelivr is blocked -->
-<script>
-if(!window.supabase){
-  document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');
-}
-</script>
 
 <script>
 const SUPABASE_URL = 'https://kavuylmowzmdupyilhdk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdnV5bG1vd3ptZHVweWlsaGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjI4OTQsImV4cCI6MjA5MzM5ODg5NH0.mSD9Mnpa1HavWMMeIi6RH427ru4xsUwsdKDcHw6QVII';
 
-// Initialize Supabase — window.supabase must be loaded by now
+// Initialize Supabase client
 let supabase = null;
 try {
   if(window.supabase && window.supabase.createClient){
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     console.log('✓ Supabase client initialized');
   } else {
-    console.error('✗ window.supabase not available — CDN may be blocked');
+    console.error('✗ window.supabase not available');
   }
 } catch(e) {
   console.error('✗ Supabase init error:', e);
