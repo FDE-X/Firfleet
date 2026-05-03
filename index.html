@@ -235,11 +235,14 @@ tr.ot td{background:rgba(255,215,0,0.06);}
   nav{padding:0.75rem 1rem;}
 }
 
+/* HOME BUTTON */
+.home-btn{display:flex;align-items:center;gap:0.6rem;margin:0.75rem 1rem 0.25rem;padding:0.6rem 1rem;background:linear-gradient(135deg,rgba(108,99,255,0.25),rgba(67,232,216,0.15));border:1px solid rgba(108,99,255,0.4);border-radius:10px;cursor:pointer;font-family:var(--font-ui);font-size:0.82rem;font-weight:700;color:var(--accent);transition:all 0.25s;text-decoration:none;}
+.home-btn:hover{background:linear-gradient(135deg,rgba(108,99,255,0.45),rgba(67,232,216,0.3));border-color:var(--accent);transform:translateX(3px);box-shadow:0 4px 15px rgba(67,232,216,0.2);}
+.home-btn svg{flex-shrink:0;}
+
 /* SCROLL REVEAL */
 .reveal{opacity:0;transform:translateY(30px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1);}
 .reveal.visible{opacity:1;transform:translateY(0);}
-
-/* GLOW EFFECTS */
 .glow-primary{box-shadow:0 0 20px rgba(108,99,255,0.3);}
 .glow-accent{box-shadow:0 0 20px rgba(67,232,216,0.3);}
 .text-accent{color:var(--accent);}
@@ -356,9 +359,12 @@ tr.ot td{background:rgba(255,215,0,0.06);}
     </button>
   </div>
 </nav>
-
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
+  <!-- Home / Back to Login -->
+  <a class="home-btn" onclick="signOut()" title="Kembali ke halaman utama / Log Keluar">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Halaman Utama
+  </a>
   <div class="nav-section-title" data-i18n="nav.main">UTAMA</div>
   <div class="nav-item active" onclick="showSection('dashboard',this)" data-i18n="nav.dashboard">
     <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
@@ -1207,14 +1213,61 @@ async function handleSupabaseAuth(){
   } catch(e){ console.error('handleSupabaseAuth error:', e); }
 }
 
-function buildCurrentUser(user){
+function buildCurrentUser(user, dbRole){
+  // dbRole comes from the users table in Supabase (fetched after login)
+  // Falls back to 'user' if not found
   currentUser = {
     name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'JPVS User',
     email: user.email || '',
-    role: user.email?.endsWith('@jpvs.gov.my') ? 'superadmin' : 'user',
+    role: dbRole || 'user',
     initials: getInitials(user.user_metadata?.full_name || user.user_metadata?.name || user.email),
-    avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+    avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+    id: user.id || ''
   };
+}
+
+// Fetch role from Supabase users table using REST API
+async function fetchUserRole(userId, accessToken){
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?id=eq.${userId}&select=role`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    if(!res.ok) return null;
+    const rows = await res.json();
+    return (rows && rows[0] && rows[0].role) ? rows[0].role : null;
+  } catch(e){
+    console.warn('fetchUserRole error:', e);
+    return null;
+  }
+}
+
+// Upsert user into users table on first login
+async function upsertUser(user, accessToken){
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+        avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || '',
+        role: 'user'  // default — admin can change in Supabase dashboard
+      })
+    });
+  } catch(e){ console.warn('upsertUser error:', e); }
 }
 
 async function doLogin(){
@@ -1286,7 +1339,9 @@ function doLoginSuccess(){
     const roleEl = document.getElementById('userRoleDisplay');
     if(roleEl) roleEl.textContent = currentUser.role === 'superadmin' ? 'Super Admin' : 'Pegawai Penguatkuasa';
     const adminNav = document.getElementById('adminNavItem');
-    if(adminNav && currentUser.role !== 'superadmin') adminNav.style.display = 'none';
+    if(adminNav){
+      adminNav.style.display = currentUser.role === 'superadmin' ? 'flex' : 'none';
+    }
 
     try { renderWFB(); } catch(e){ console.warn('renderWFB',e); }
     try { renderAdminPanel(); } catch(e){ console.warn('renderAdminPanel',e); }
@@ -1294,7 +1349,7 @@ function doLoginSuccess(){
     try { updateAnnDisplay(); } catch(e){ console.warn('updateAnnDisplay',e); }
     try { updateStats(); } catch(e){ console.warn('updateStats',e); }
     try { triggerReveal(); } catch(e){ console.warn('triggerReveal',e); }
-    try { loadSampleData(); } catch(e){ console.warn('loadSampleData',e); }
+    try { loadUserData(); } catch(e){ console.warn('loadUserData',e); }
   }, 400);
 }
 
@@ -1435,7 +1490,7 @@ function closeModal(id){
   document.getElementById(id).classList.remove('open');
 }
 
-function saveTravelLog(){
+async function saveTravelLog(){
   const rec={
     tarikh:document.getElementById('tl-tarikh').value,
     masapergi:document.getElementById('tl-masapergi').value,
@@ -1452,7 +1507,21 @@ function saveTravelLog(){
     resit:document.getElementById('tl-resit').value,
     nota:document.getElementById('tl-nota').value
   };
-  travelData.push(rec);renderTravelTable();updateStats();closeModal('travelModal');
+  if(!rec.tarikh){ showToast('Sila isi tarikh'); return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/travel_logs`, {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify(travelToDb(rec))
+    });
+    if(!res.ok){ const err=await res.text(); console.error('saveTravelLog:', err); showToast('Gagal simpan: '+err); return; }
+    const [saved] = await res.json();
+    rec._id = saved.id;
+    rec.jarak = parseFloat(saved.jarak_km) || rec.jarak;
+    travelData.unshift(rec);
+    renderTravelTable(); updateStats(); closeModal('travelModal');
+    showToast('Log perjalanan disimpan ✓');
+  } catch(e){ console.error('saveTravelLog error:', e); showToast('Ralat simpan data'); }
 }
 
 function renderTravelTable(){
@@ -1470,7 +1539,17 @@ function renderTravelTable(){
   document.getElementById('tlogTotalTrips').textContent=totalTrips;
   document.getElementById('tlogTotalLiter').textContent=totalL.toFixed(2)+' L';
 }
-function deleteTravelRow(i){travelData.splice(i,1);renderTravelTable();updateStats();}
+async function deleteTravelRow(i){
+  const rec = travelData[i];
+  if(rec && rec._id){
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/travel_logs?id=eq.${rec._id}`, {
+        method: 'DELETE', headers: sbHeaders()
+      });
+    } catch(e){ console.warn('deleteTravelRow:', e); }
+  }
+  travelData.splice(i,1); renderTravelTable(); updateStats();
+}
 
 function calcEnfTotal(){
   const ids=['enf-rmek','enf-rmkdr','enf-rmpengangkut','enf-rmlain'];
@@ -1484,15 +1563,28 @@ function openEnfModal(){
   document.getElementById('enf-rmnilai').value='0';
 }
 
-function saveEnfData(){
+async function saveEnfData(){
   playSound('click');
   const g=id=>document.getElementById(id).value||'';
   const gn=id=>parseFloat(document.getElementById(id).value)||0;
   const rec={tahun:g('enf-tahun'),bulan:g('enf-bulan'),penguatkuasa:g('enf-penguatkuasa'),kategori:g('enf-kategori'),nopolis:g('enf-nopolis'),tarikh:g('enf-tarikh'),masa:g('enf-masa'),lokasi:g('enf-lokasi'),kesalahan:g('enf-kesalahan'),undang:g('enf-undang'),noip:g('enf-noip'),jenis:g('enf-jenis'),lembu:gn('enf-lembu'),kerbau:gn('enf-kerbau'),kambing:gn('enf-kambing'),bebiri:gn('enf-bebiri'),babi:gn('enf-babi'),ayam:gn('enf-ayam'),klembu:gn('enf-klembu'),kkerbau:gn('enf-kkerbau'),kkambing:gn('enf-kkambing'),kbabi:gn('enf-kbabi'),kbabisb:gn('enf-kbabisb'),kayam:gn('enf-kayam'),pitik:gn('enf-pitik'),payam:gn('enf-payam'),pbabi:gn('enf-pbabi'),tin:gn('enf-tin'),anjing:gn('enf-anjing'),kucing:gn('enf-kucing'),arnab:gn('enf-arnab'),burung:gn('enf-burung'),hamster:gn('enf-hamster'),lain:g('enf-lain'),jkdr:gn('enf-jkdr'),jpengangkut:gn('enf-jpengangkut'),rmek:gn('enf-rmek'),rmkdr:gn('enf-rmkdr'),rmpengangkut:gn('enf-rmpengangkut'),rmlain:gn('enf-rmlain'),rmnilai:gn('enf-rmnilai'),serahan:g('enf-serahan'),catatan:g('enf-catatan')};
-  enfData.push(rec);
-  const sel=document.getElementById('enfFilterBulan');
-  if(rec.bulan&&![...sel.options].find(o=>o.value===rec.bulan)){const o=document.createElement('option');o.value=rec.bulan;o.textContent=rec.bulan;sel.appendChild(o);}
-  renderEnfTable(enfData);updateStats();closeModal('enfModal');
+  if(!rec.tarikh){ showToast('Sila isi tarikh kes'); return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/enforcement_cases`, {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify(enfToDb(rec))
+    });
+    if(!res.ok){ const err=await res.text(); console.error('saveEnfData:', err); showToast('Gagal simpan: '+err); return; }
+    const [saved] = await res.json();
+    rec._id = saved.id;
+    rec.rmnilai = parseFloat(saved.rm_nilai_total) || rec.rmnilai;
+    enfData.unshift(rec);
+    const sel=document.getElementById('enfFilterBulan');
+    if(rec.bulan&&![...sel.options].find(o=>o.value===rec.bulan)){const o=document.createElement('option');o.value=rec.bulan;o.textContent=rec.bulan;sel.appendChild(o);}
+    renderEnfTable(enfData); updateStats(); closeModal('enfModal');
+    showToast('Data kes disimpan ✓');
+  } catch(e){ console.error('saveEnfData error:', e); showToast('Ralat simpan data'); }
 }
 
 function renderEnfTable(data){
@@ -1517,7 +1609,17 @@ function filterEnf(){
   });
   renderEnfTable(filtered);
 }
-function deleteEnfRow(i){enfData.splice(i,1);renderEnfTable(enfData);updateStats();}
+async function deleteEnfRow(i){
+  const rec = enfData[i];
+  if(rec && rec._id){
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/enforcement_cases?id=eq.${rec._id}`, {
+        method: 'DELETE', headers: sbHeaders()
+      });
+    } catch(e){ console.warn('deleteEnfRow:', e); }
+  }
+  enfData.splice(i,1); renderEnfTable(enfData); updateStats();
+}
 
 function updateStats(){
   const totalKes=enfData.length;
@@ -1696,14 +1798,158 @@ function toggleProfileMenu(){
   showToast('Profil: '+currentUser.name+' ('+currentUser.role+')');
 }
 
-// SAMPLE DATA
-function loadSampleData(){
-  travelData=[{tarikh:'2025-06-01',masapergi:'08:00',masabalik:'17:00',pemandu:'Ahmad Firdaus',tujuan:'Lawatan premis — Jalan Ampang KL',pelulus:'Pengarah',pengguna:'Ahmad Firdaus',odomula:12500,odoakhir:12648,jarak:148,liter:14.5,kos:29.73,resit:'RCP-2025-001',nota:'Pemeriksaan rutin'},{tarikh:'2025-06-05',masapergi:'09:00',masabalik:'16:00',pemandu:'Mohd Hafiz',tujuan:'Serbuan — Pasar Borong Selayang',pelulus:'Pengarah',pengguna:'Mohd Hafiz',odomula:12648,odoakhir:12780,jarak:132,liter:12.8,kos:26.24,resit:'RCP-2025-002',nota:'Operasi bersepadu'}];
-  enfData=[{tahun:2025,bulan:'Jun',penguatkuasa:'Ahmad Firdaus',kategori:'Kesalahan Penyembelihan',nopolis:'P/001/2025',tarikh:'2025-06-01',masa:'14:30',lokasi:'Jalan Ampang, Kuala Lumpur',kesalahan:'Penyembelihan tanpa lesen',undang:'Akta 309 S.8(1)',noip:'IP/001/2025',jenis:'Haiwan hidup',lembu:3,kerbau:0,kambing:5,bebiri:0,babi:0,ayam:0,klembu:0,kkerbau:0,kkambing:0,kbabi:0,kbabisb:0,kayam:0,pitik:0,payam:0,pbabi:0,tin:0,anjing:0,kucing:0,arnab:0,burung:0,hamster:0,lain:'0',jkdr:1,jpengangkut:1,rmek:9000,rmkdr:45000,rmpengangkut:80000,rmlain:0,rmnilai:134000,serahan:'Mahkamah',catatan:'Suspek ditahan'},{tahun:2025,bulan:'Jun',penguatkuasa:'Mohd Hafiz',kategori:'Kesalahan Pengangkutan',nopolis:'P/002/2025',tarikh:'2025-06-05',masa:'10:15',lokasi:'Pasar Borong Selayang, Selangor',kesalahan:'Pengangkutan haiwan tanpa permit',undang:'Akta 309 S.15(2)',noip:'IP/002/2025',jenis:'Karkas',lembu:0,kerbau:0,kambing:0,bebiri:0,babi:0,ayam:250,klembu:0,kkerbau:0,kkambing:0,kbabi:0,kbabisb:0,kayam:250,pitik:0,payam:50,pbabi:0,tin:0,anjing:0,kucing:0,arnab:0,burung:0,hamster:0,lain:'0',jkdr:0,jpengangkut:2,rmek:7500,rmkdr:0,rmpengangkut:160000,rmlain:500,rmnilai:168000,serahan:'Kompaun',catatan:'Kenderaan rampas'}];
-  renderTravelTable();renderEnfTable(enfData);updateStats();
-  const bulanSel=document.getElementById('enfFilterBulan');
-  ['Jun'].forEach(b=>{if(![...bulanSel.options].find(o=>o.value===b)){const o=document.createElement('option');o.value=b;o.textContent=b;bulanSel.appendChild(o);}});
+// ─── SUPABASE DATA HELPERS ────────────────────────────────────────────────────
+
+function sbHeaders(){
+  // Read token from localStorage (set by inline supabase client)
+  let token = '';
+  try {
+    const s = JSON.parse(localStorage.getItem('jpvs_session') || 'null');
+    token = (s && s.access_token) ? s.access_token : '';
+  } catch(e){}
+  return {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
 }
+
+// Map DB row → local travelData object
+function dbRowToTravel(r){
+  return {
+    _id: r.id,
+    tarikh: r.tarikh || '',
+    masapergi: r.masa_pergi || '',
+    masabalik: r.masa_balik || '',
+    pemandu: r.pemandu || '',
+    tujuan: r.tujuan || '',
+    pelulus: r.pelulus || '',
+    pengguna: r.pengguna || '',
+    odomula: parseFloat(r.odometer_mula) || 0,
+    odoakhir: parseFloat(r.odometer_akhir) || 0,
+    jarak: parseFloat(r.jarak_km) || 0,
+    liter: parseFloat(r.liter) || 0,
+    kos: parseFloat(r.kos_rm) || 0,
+    resit: r.no_resit || '',
+    nota: r.nota || ''
+  };
+}
+
+// Map local travelData object → DB columns
+function travelToDb(rec){
+  return {
+    user_id: currentUser.id,
+    tarikh: rec.tarikh || null,
+    masa_pergi: rec.masapergi || null,
+    masa_balik: rec.masabalik || null,
+    pemandu: rec.pemandu,
+    tujuan: rec.tujuan,
+    pelulus: rec.pelulus,
+    pengguna: rec.pengguna,
+    odometer_mula: rec.odomula,
+    odometer_akhir: rec.odoakhir,
+    liter: rec.liter,
+    kos_rm: rec.kos,
+    no_resit: rec.resit,
+    nota: rec.nota
+  };
+}
+
+// Map DB row → local enfData object
+function dbRowToEnf(r){
+  return {
+    _id: r.id,
+    tahun: r.tahun, bulan: r.bulan,
+    penguatkuasa: r.penguatkuasa, kategori: r.kategori,
+    nopolis: r.no_polis, tarikh: r.tarikh, masa: r.masa,
+    lokasi: r.lokasi, kesalahan: r.kesalahan,
+    undang: r.undang_undang, noip: r.no_ip, jenis: r.jenis_rampasan,
+    lembu: r.lembu||0, kerbau: r.kerbau||0, kambing: r.kambing||0,
+    bebiri: r.bebiri||0, babi: r.babi||0, ayam: r.ayam||0,
+    klembu: r.k_lembu||0, kkerbau: r.k_kerbau||0, kkambing: r.k_kambing||0,
+    kbabi: r.k_babi||0, kbabisb: r.k_babi_sb||0, kayam: r.k_ayam||0,
+    pitik: r.pitik||0, payam: r.p_ayam||0, pbabi: r.p_babi||0,
+    tin: r.tin||0, anjing: r.anjing||0, kucing: r.kucing||0,
+    arnab: r.arnab||0, burung: r.burung||0, hamster: r.hamster||0,
+    lain: r.lain_lain||'0',
+    jkdr: r.jml_kenderaan||0, jpengangkut: r.jml_pengangkut||0,
+    rmek: parseFloat(r.rm_ek)||0, rmkdr: parseFloat(r.rm_kdr)||0,
+    rmpengangkut: parseFloat(r.rm_pengangkut)||0, rmlain: parseFloat(r.rm_lain)||0,
+    rmnilai: parseFloat(r.rm_nilai_total)||0,
+    serahan: r.serahan, catatan: r.catatan
+  };
+}
+
+// Map local enfData object → DB columns
+function enfToDb(rec){
+  return {
+    user_id: currentUser.id,
+    tahun: parseInt(rec.tahun)||new Date().getFullYear(),
+    bulan: rec.bulan, penguatkuasa: rec.penguatkuasa,
+    kategori: rec.kategori, no_polis: rec.nopolis,
+    tarikh: rec.tarikh||null, masa: rec.masa||null,
+    lokasi: rec.lokasi, kesalahan: rec.kesalahan,
+    undang_undang: rec.undang, no_ip: rec.noip,
+    jenis_rampasan: rec.jenis,
+    lembu: rec.lembu, kerbau: rec.kerbau, kambing: rec.kambing,
+    bebiri: rec.bebiri, babi: rec.babi, ayam: rec.ayam,
+    k_lembu: rec.klembu, k_kerbau: rec.kkerbau, k_kambing: rec.kkambing,
+    k_babi: rec.kbabi, k_babi_sb: rec.kbabisb, k_ayam: rec.kayam,
+    pitik: rec.pitik, p_ayam: rec.payam, p_babi: rec.pbabi,
+    tin: rec.tin, anjing: rec.anjing, kucing: rec.kucing,
+    arnab: rec.arnab, burung: rec.burung, hamster: rec.hamster,
+    lain_lain: String(rec.lain||'0'),
+    jml_kenderaan: rec.jkdr, jml_pengangkut: rec.jpengangkut,
+    rm_ek: rec.rmek, rm_kdr: rec.rmkdr,
+    rm_pengangkut: rec.rmpengangkut, rm_lain: rec.rmlain,
+    serahan: rec.serahan, catatan: rec.catatan
+  };
+}
+
+// Load all data from Supabase for the logged-in user
+async function loadUserData(){
+  if(!currentUser || !currentUser.id){ renderTravelTable(); renderEnfTable([]); updateStats(); return; }
+  showToast('Memuatkan data...');
+  try {
+    // Travel logs
+    const tRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/travel_logs?user_id=eq.${currentUser.id}&order=tarikh.desc`,
+      { headers: sbHeaders() }
+    );
+    if(tRes.ok){ travelData = (await tRes.json()).map(dbRowToTravel); }
+    else { console.warn('travel_logs fetch:', await tRes.text()); travelData = []; }
+
+    // Enforcement cases
+    const eRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/enforcement_cases?user_id=eq.${currentUser.id}&order=tarikh.desc`,
+      { headers: sbHeaders() }
+    );
+    if(eRes.ok){ enfData = (await eRes.json()).map(dbRowToEnf); }
+    else { console.warn('enforcement_cases fetch:', await eRes.text()); enfData = []; }
+
+    renderTravelTable();
+    renderEnfTable(enfData);
+    updateStats();
+
+    // Populate bulan filter
+    const bulanSel = document.getElementById('enfFilterBulan');
+    if(bulanSel){
+      enfData.forEach(r => {
+        if(r.bulan && ![...bulanSel.options].find(o=>o.value===r.bulan)){
+          const o = document.createElement('option'); o.value=r.bulan; o.textContent=r.bulan; bulanSel.appendChild(o);
+        }
+      });
+    }
+    showToast('Data berjaya dimuatkan');
+  } catch(e){
+    console.error('loadUserData error:', e);
+    showToast('Gagal memuatkan data');
+    travelData = []; enfData = [];
+    renderTravelTable(); renderEnfTable([]); updateStats();
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 // INIT
@@ -1718,10 +1964,13 @@ document.getElementById('loginScreen').style.display = 'flex';
 document.getElementById('loginScreen').style.opacity = '1';
 
 // supabase is always available — register auth state listener
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
   if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
     if(isLoggedIn) return;
-    buildCurrentUser(session.user);
+    // Upsert user record, then fetch their role from DB
+    await upsertUser(session.user, session.access_token);
+    const dbRole = await fetchUserRole(session.user.id, session.access_token);
+    buildCurrentUser(session.user, dbRole);
     doLoginSuccess();
   } else if(event === 'SIGNED_OUT'){
     isLoggedIn = false;
