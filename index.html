@@ -1230,7 +1230,7 @@ function buildCurrentUser(user, dbRole){
 async function fetchUserRole(userId, accessToken){
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/users?id=eq.${userId}&select=role`,
+      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=role`,
       {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
@@ -1251,7 +1251,7 @@ async function fetchUserRole(userId, accessToken){
 // Upsert user into users table on first login
 async function upsertUser(user, accessToken){
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
@@ -1262,9 +1262,9 @@ async function upsertUser(user, accessToken){
       body: JSON.stringify({
         id: user.id,
         email: user.email,
-        full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-        avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || '',
-        role: 'user'  // default — admin can change in Supabase dashboard
+        full_name: user.user_metadata?.full_name || user.user_metadata?.name || ''
+        // role is NOT set here — preserve whatever is already in the table
+        // Default 'user' is set by the DB column default
       })
     });
   } catch(e){ console.warn('upsertUser error:', e); }
