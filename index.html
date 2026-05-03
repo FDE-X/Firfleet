@@ -818,6 +818,46 @@ tr.ot td{background:rgba(255,215,0,0.06);}
 const SUPABASE_URL = 'https://kavuylmowzmdupyilhdk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdnV5bG1vd3ptZHVweWlsaGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjI4OTQsImV4cCI6MjA5MzM5ODg5NH0.mSD9Mnpa1HavWMMeIi6RH427ru4xsUwsdKDcHw6QVII';
 
+// ─── GOOGLE SHEETS INTEGRATION ────────────────────────────────────────────────
+// Selepas deploy GOOGLE_SHEETS_SETUP.gs sebagai Web App, letak URL di sini:
+const GS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz1EDj4xShsXRgywqv_Loan4TN0RHMhX6Q465zw4_qp2dCiHd3lTjTTjQYyNctJShq4SA/exec';  // ← LETAK URL DEPLOYMENT DI SINI
+//   contoh: 'https://script.google.com/macros/s/AKfycbxXXXXXXXXX/exec'
+const GS_SECRET   = 'JPVS_FIRFLEET_2025_SECRET'; // ← Mesti sama dengan SECRET_TOKEN dalam .gs
+const GS_ENABLED  = GS_ENDPOINT.length > 10;      // auto-disable jika URL belum diisi
+
+// Hantar data ke Google Sheets (fire-and-forget, tidak block UI)
+async function syncToGS(action, payload) {
+  if (!GS_ENABLED || !currentUser) return;
+  try {
+    // Tambah nama pengguna ke payload
+    const enriched = {
+      ...payload,
+      user_id        : currentUser.id,
+      nama_pengguna  : currentUser.name
+    };
+    const res = await fetch(GS_ENDPOINT, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ token: GS_SECRET, action, payload: enriched })
+    });
+    if (!res.ok) console.warn('[GS] HTTP', res.status);
+    else console.log('[GS] ✓', action);
+  } catch (e) {
+    console.warn('[GS] sync error:', e.message);
+    // Simpan dalam queue untuk cuba semula
+    gsQueue.push({ action, payload, ts: Date.now() });
+  }
+}
+
+// Queue untuk retry jika gagal
+const gsQueue = [];
+setInterval(async () => {
+  if (!GS_ENABLED || gsQueue.length === 0) return;
+  const item = gsQueue.shift();
+  await syncToGS(item.action, item.payload);
+}, 10000); // cuba semula setiap 10 saat
+// ──────────────────────────────────────────────────────────────────────────────
+
 // ─── Minimal Supabase Auth client (no CDN required) ───────────────────────────
 // Implements only what we need: signInWithOAuth, getSession, signOut, onAuthStateChange
 const supabase = (() => {
@@ -1316,6 +1356,12 @@ async function upsertUser(user, accessToken){
       })
     });
     if(!res.ok) console.warn('upsertUser HTTP', res.status, await res.text());
+    // Sync profile ke Google Sheets
+    syncToGS('upsert_profile', {
+      id       : user.id,
+      email    : user.email,
+      full_name: user.user_metadata?.full_name || user.user_metadata?.name || ''
+    });
   } catch(e){ console.warn('upsertUser error:', e); }
 }
 
@@ -1587,6 +1633,8 @@ async function saveWFBRow(day, year, bulan){
       // Flash saved indicator
       const ind = document.getElementById(`wfb-saved-${day}`);
       if(ind){ ind.style.opacity='1'; setTimeout(()=>{ ind.style.opacity='0'; }, 1500); }
+      // Sync ke Google Sheets (background)
+      syncToGS('upsert_wfb', payload);
     } else {
       console.warn('saveWFBRow HTTP', res.status, await res.text());
     }
@@ -1692,6 +1740,8 @@ async function saveTravelLog(){
     travelData.unshift(rec);
     renderTravelTable(); updateStats(); closeModal('travelModal');
     showToast('Log perjalanan disimpan ✓');
+    // Sync ke Google Sheets (background)
+    syncToGS('insert_travel', { ...travelToDb(rec), id: rec._id });
   } catch(e){ console.error('saveTravelLog error:', e); showToast('Ralat simpan data'); }
 }
 
@@ -1717,6 +1767,7 @@ async function deleteTravelRow(i){
       await fetch(`${SUPABASE_URL}/rest/v1/travel_logs?id=eq.${rec._id}`, {
         method: 'DELETE', headers: sbHeaders()
       });
+      syncToGS('delete_travel', { id: rec._id });
     } catch(e){ console.warn('deleteTravelRow:', e); }
   }
   travelData.splice(i,1); renderTravelTable(); updateStats();
@@ -1755,6 +1806,8 @@ async function saveEnfData(){
     if(rec.bulan&&![...sel.options].find(o=>o.value===rec.bulan)){const o=document.createElement('option');o.value=rec.bulan;o.textContent=rec.bulan;sel.appendChild(o);}
     renderEnfTable(enfData); updateStats(); closeModal('enfModal');
     showToast('Data kes disimpan ✓');
+    // Sync ke Google Sheets (background)
+    syncToGS('insert_enforcement', { ...enfToDb(rec), id: rec._id });
   } catch(e){ console.error('saveEnfData error:', e); showToast('Ralat simpan data'); }
 }
 
@@ -1787,6 +1840,7 @@ async function deleteEnfRow(i){
       await fetch(`${SUPABASE_URL}/rest/v1/enforcement_cases?id=eq.${rec._id}`, {
         method: 'DELETE', headers: sbHeaders()
       });
+      syncToGS('delete_enforcement', { id: rec._id });
     } catch(e){ console.warn('deleteEnfRow:', e); }
   }
   enfData.splice(i,1); renderEnfTable(enfData); updateStats();
