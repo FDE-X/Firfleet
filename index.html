@@ -1226,47 +1226,60 @@ function buildCurrentUser(user, dbRole){
   };
 }
 
-// Fetch role from Supabase users table using REST API
+// Fetch role from profiles table — retries once if first attempt returns empty
 async function fetchUserRole(userId, accessToken){
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=role`,
-      {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
+  for(let attempt = 0; attempt < 3; attempt++){
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=role`,
+        {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+          }
         }
+      );
+      if(!res.ok){
+        console.warn('fetchUserRole HTTP', res.status, await res.text());
+        await new Promise(r=>setTimeout(r, 500));
+        continue;
       }
-    );
-    if(!res.ok) return null;
-    const rows = await res.json();
-    return (rows && rows[0] && rows[0].role) ? rows[0].role : null;
-  } catch(e){
-    console.warn('fetchUserRole error:', e);
-    return null;
+      const rows = await res.json();
+      if(rows && rows[0] && rows[0].role){
+        console.log('✓ Role from DB:', rows[0].role);
+        return rows[0].role;
+      }
+      // Row not yet created — wait and retry
+      await new Promise(r=>setTimeout(r, 600));
+    } catch(e){
+      console.warn('fetchUserRole error:', e);
+      await new Promise(r=>setTimeout(r, 500));
+    }
   }
+  console.warn('fetchUserRole: could not get role after 3 attempts');
+  return null;
 }
 
-// Upsert user into users table on first login
+// Upsert profile — only sets non-role fields so existing role is preserved
 async function upsertUser(user, accessToken){
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
       },
       body: JSON.stringify({
         id: user.id,
         email: user.email,
         full_name: user.user_metadata?.full_name || user.user_metadata?.name || ''
-        // role is NOT set here — preserve whatever is already in the table
-        // Default 'user' is set by the DB column default
+        // role intentionally omitted — DB default or existing value is kept
       })
     });
+    if(!res.ok) console.warn('upsertUser HTTP', res.status, await res.text());
   } catch(e){ console.warn('upsertUser error:', e); }
 }
 
@@ -1967,11 +1980,17 @@ document.getElementById('loginScreen').style.opacity = '1';
 supabase.auth.onAuthStateChange(async (event, session) => {
   if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
     if(isLoggedIn) return;
-    // Upsert user record, then fetch their role from DB
-    await upsertUser(session.user, session.access_token);
+
+    // Step 1: upsert profile (non-blocking)
+    upsertUser(session.user, session.access_token);
+
+    // Step 2: fetch role from DB
     const dbRole = await fetchUserRole(session.user.id, session.access_token);
+
+    // Step 3: build user and show app
     buildCurrentUser(session.user, dbRole);
     doLoginSuccess();
+
   } else if(event === 'SIGNED_OUT'){
     isLoggedIn = false;
     currentUser = null;
