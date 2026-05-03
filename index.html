@@ -820,20 +820,21 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // ─── GOOGLE SHEETS INTEGRATION ────────────────────────────────────────────────
 // Selepas deploy GOOGLE_SHEETS_SETUP.gs sebagai Web App, letak URL di sini:
-const GS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz1EDj4xShsXRgywqv_Loan4TN0RHMhX6Q465zw4_qp2dCiHd3lTjTTjQYyNctJShq4SA/exec';  // ← LETAK URL DEPLOYMENT DI SINI
-//   contoh: 'https://script.google.com/macros/s/AKfycbxXXXXXXXXX/exec'
-const GS_SECRET   = 'JPVS_FIRFLEET_2025_SECRET'; // ← Mesti sama dengan SECRET_TOKEN dalam .gs
-const GS_ENABLED  = GS_ENDPOINT.length > 10;      // auto-disable jika URL belum diisi
+const GS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz1EDj4xShsXRgywqv_Loan4TN0RHMhX6Q465zw4_qp2dCiHd3lTjTTjQYyNctJShq4SA/exec';
+const GS_SECRET   = 'JPVS_FIRFLEET_2025_SECRET';
+const GS_ENABLED  = GS_ENDPOINT.length > 10;
+
+// Queue MESTI dideklarasi SEBELUM syncToGS (elak temporal dead zone)
+const gsQueue = [];
 
 // Hantar data ke Google Sheets (fire-and-forget, tidak block UI)
 async function syncToGS(action, payload) {
   if (!GS_ENABLED || !currentUser) return;
   try {
-    // Tambah nama pengguna ke payload
     const enriched = {
       ...payload,
-      user_id        : currentUser.id,
-      nama_pengguna  : currentUser.name
+      user_id      : currentUser.id,
+      nama_pengguna: currentUser.name
     };
     const res = await fetch(GS_ENDPOINT, {
       method : 'POST',
@@ -844,18 +845,16 @@ async function syncToGS(action, payload) {
     else console.log('[GS] ✓', action);
   } catch (e) {
     console.warn('[GS] sync error:', e.message);
-    // Simpan dalam queue untuk cuba semula
     gsQueue.push({ action, payload, ts: Date.now() });
   }
 }
 
-// Queue untuk retry jika gagal
-const gsQueue = [];
+// Retry queue setiap 10 saat
 setInterval(async () => {
-  if (!GS_ENABLED || gsQueue.length === 0) return;
+  if (!GS_ENABLED || gsQueue.length === 0 || !currentUser) return;
   const item = gsQueue.shift();
   await syncToGS(item.action, item.payload);
-}, 10000); // cuba semula setiap 10 saat
+}, 10000);
 // ──────────────────────────────────────────────────────────────────────────────
 
 // ─── Minimal Supabase Auth client (no CDN required) ───────────────────────────
