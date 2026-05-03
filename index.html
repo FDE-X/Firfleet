@@ -1,2214 +1,453 @@
-<!DOCTYPE html>
-<html lang="ms">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Penguatkuasaan | JPVS Portal v1.0</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦅</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Noto+Sans+Malay:wght@400;600&family=Orbitron:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-:root {
---primary:#6C63FF;--secondary:#FF6584;--accent:#43E8D8;--gold:#FFD700;
---dark:#0A0A1A;--darker:#05050F;--card:#111128;--card2:#1A1A35;
---text:#E8E8FF;--muted:#8888AA;--success:#00FF88;--warning:#FFB347;--danger:#FF4757;
---font-heading:'Orbitron',sans-serif;--font-body:'Inter',sans-serif;--font-ui:'Rajdhani',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{font-family:var(--font-body);background:var(--darker);color:var(--text);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.5;}
-
-/* ANIMATED BACKGROUND */
-.bg-anime{position:fixed;inset:0;z-index:0;overflow:hidden;}
-.bg-anime::before{content:'';position:absolute;inset:0;background-image:url('https://github.com/FDE-X/flexdata/raw/main/assets/b5.jpg');background-size:cover;background-position:center center;background-repeat:no-repeat;filter:brightness(0.42);animation:bgPulse 8s ease-in-out infinite;}
-.bg-anime::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,26,0.45) 0%,rgba(10,10,26,0.75) 100%),radial-gradient(ellipse at 20% 50%,rgba(108,99,255,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(255,101,132,0.08) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(67,232,216,0.06) 0%,transparent 50%);}
-@keyframes bgPulse{0%,100%{opacity:1;}50%{opacity:0.85;}}
-
-/* PARTICLES */
-.particles{position:fixed;inset:0;z-index:1;pointer-events:none;}
-.particle{position:absolute;border-radius:50%;animation:floatParticle linear infinite;opacity:0;}
-@keyframes floatParticle{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:1;}90%{opacity:0.5;}100%{transform:translateY(-10vh) rotate(720deg);opacity:0;}}
-
-/* NAVBAR */
-/* ── LAYOUT VARIABLES ─────────────────────────────────────── */
-:root{--nav-h:64px;--sidebar-w:240px;}
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:linear-gradient(180deg,rgba(10,10,26,0.92),rgba(10,10,26,0.7)),url('https://github.com/FDE-X/flexdata/raw/main/assets/b10.jpg');background-size:cover;background-position:center center;backdrop-filter:blur(20px);border-bottom:1px solid rgba(108,99,255,0.3);transition:all 0.3s;}
-.nav-logos{display:flex;align-items:center;gap:1rem;}
-.nav-logo-item{width:42px;height:42px;border-radius:0;background:transparent;border:none;display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:all 0.3s;}
-.nav-logo-item:hover{transform:scale(1.1);box-shadow:0 0 20px rgba(67,232,216,0.4);}
-.nav-brand{display:flex;flex-direction:column;align-items:center;}
-.nav-title{font-family:var(--font-heading);font-size:0.8rem;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;}
-.nav-subtitle{font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);}
-.version-badge{font-family:var(--font-heading);font-size:0.65rem;background:linear-gradient(135deg,var(--primary),var(--accent));padding:0.2rem 0.5rem;border-radius:20px;color:#fff;animation:versionPulse 2s ease-in-out infinite;margin-left:0.5rem;}
-@keyframes versionPulse{0%,100%{box-shadow:0 0 5px rgba(108,99,255,0.5);}50%{box-shadow:0 0 15px rgba(108,99,255,0.9),0 0 30px rgba(67,232,216,0.4);}}
-.nav-actions{display:flex;align-items:center;gap:1rem;}
-.lang-toggle{font-family:var(--font-ui);font-size:0.8rem;background:rgba(108,99,255,0.2);border:1px solid rgba(108,99,255,0.4);color:var(--text);padding:0.3rem 0.8rem;border-radius:20px;cursor:pointer;transition:all 0.3s;}
-.lang-toggle:hover{background:var(--primary);border-color:var(--primary);}
-.user-profile{display:flex;align-items:center;gap:0.5rem;cursor:pointer;transition:all 0.3s;}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;border:2px solid var(--accent);}
-.user-name{font-family:var(--font-ui);font-size:0.95rem;font-weight:600;}
-
-.site-footer{position:relative;overflow:hidden;background:url('https://github.com/FDE-X/flexdata/raw/main/assets/b4.jpg') center/cover no-repeat;color:#fff;margin-top:2rem;padding:3rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:220px;}
-.site-footer::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,26,0.7),rgba(10,10,26,0.95));}
-.site-footer *{position:relative;z-index:1;}
-.footer-copy{font-family:var(--font-ui);font-size:0.95rem;color:rgba(255,255,255,0.88);max-width:520px;}
-.footer-links{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:flex-end;}
-.footer-links a{color:#fff;text-decoration:none;opacity:0.85;transition:opacity 0.2s;}
-.footer-links a:hover{opacity:1;}
-@media(max-width:768px){.site-footer{flex-direction:column;align-items:flex-start;text-align:left;min-height:auto;}.footer-links{justify-content:flex-start;}}
-
-/* SIDEBAR */
-.sidebar{position:fixed;left:0;top:var(--nav-h);bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,rgba(10,10,30,0.95),rgba(10,10,30,0.99)),url('https://github.com/FDE-X/flexdata/raw/main/assets/c6.png');background-size:cover;background-position:center;backdrop-filter:blur(20px);border-right:1px solid rgba(108,99,255,0.2);z-index:900;overflow-y:auto;overflow-x:hidden;padding:0.75rem 0 2rem;transition:transform 0.3s ease;}
-.sidebar::-webkit-scrollbar{width:3px;}
-.sidebar::-webkit-scrollbar-track{background:transparent;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--primary);border-radius:2px;}
-.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:850;backdrop-filter:blur(2px);}
-.sidebar-backdrop.visible{display:block;}
-.nav-section-title{font-family:var(--font-ui);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);padding:0.75rem 1.25rem 0.25rem;margin-top:0.25rem;}
-.nav-item{display:flex;align-items:center;gap:0.65rem;padding:0.7rem 1.25rem;cursor:pointer;transition:all 0.25s;border-left:3px solid transparent;font-family:var(--font-ui);font-size:0.95rem;font-weight:600;color:var(--muted);position:relative;overflow:hidden;}
-.nav-item::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(108,99,255,0.1),transparent);opacity:0;transition:opacity 0.3s;}
-.nav-item:hover,.nav-item.active{color:var(--text);border-left-color:var(--primary);}
-.nav-item:hover::before,.nav-item.active::before{opacity:1;}
-.nav-item.active{color:var(--accent);}
-.nav-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-
-/* MAIN CONTENT */
-.main{margin-left:var(--sidebar-w);padding-top:var(--nav-h);min-height:100vh;position:relative;z-index:10;}
-.section{display:none;min-height:calc(100vh - var(--nav-h));padding:1.5rem;animation:sectionReveal 0.5s cubic-bezier(0.16,1,0.3,1);}
-.section.active{display:block;}
-@keyframes sectionReveal{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-
-/* SECTION TRANSITION OVERLAY */
-.transition-overlay{position:fixed;inset:0;z-index:5000;pointer-events:none;opacity:0;}
-.transition-overlay.animating{animation:sectionTransition 0.7s cubic-bezier(0.16,1,0.3,1);}
-@keyframes sectionTransition{0%{opacity:0;background:transparent;}30%{opacity:1;background:radial-gradient(ellipse at center,rgba(108,99,255,0.6),rgba(67,232,216,0.3),transparent);}100%{opacity:0;background:transparent;}}
-
-/* CARDS */
-.card{background:var(--card);border:1px solid rgba(108,99,255,0.2);border-radius:16px;padding:1.5rem;transition:all 0.3s;position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--secondary));opacity:0;transition:opacity 0.3s;}
-.card:hover{border-color:rgba(108,99,255,0.5);transform:translateY(-2px);box-shadow:0 8px 32px rgba(108,99,255,0.15);}
-.card:hover::before{opacity:1;}
-
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;}
-.stat-card{background:var(--card);border:1px solid rgba(108,99,255,0.2);border-radius:12px;padding:1.2rem;text-align:center;transition:all 0.3s;cursor:default;}
-.stat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(108,99,255,0.2);}
-.stat-number{font-family:var(--font-heading);font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.stat-label{font-family:var(--font-ui);font-size:0.88rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.25rem;}
-
-/* PAGE HEADERS */
-.page-header{margin-bottom:2rem;}
-.page-title{font-family:var(--font-heading);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;}
-.page-subtitle{font-family:var(--font-ui);color:var(--muted);font-size:1rem;}
-.page-subtitle span{color:var(--accent);}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.65rem 1.3rem;border-radius:10px;border:none;cursor:pointer;font-family:var(--font-ui);font-size:0.95rem;font-weight:700;transition:all 0.2s;text-decoration:none;}
-.btn-primary{background:linear-gradient(135deg,var(--primary),#8B5CF6);color:#fff;box-shadow:0 4px 15px rgba(108,99,255,0.3);}
-.btn-primary:hover{transform:scale(1.05) translateY(-1px);box-shadow:0 8px 25px rgba(108,99,255,0.5);}
-.btn-primary:active{transform:scale(0.97);}
-.btn-success{background:linear-gradient(135deg,#00C853,#00E676);color:#000;box-shadow:0 4px 15px rgba(0,200,83,0.3);}
-.btn-success:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(0,200,83,0.5);}
-.btn-danger{background:linear-gradient(135deg,var(--danger),#FF6B81);color:#fff;box-shadow:0 4px 15px rgba(255,71,87,0.3);}
-.btn-danger:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(255,71,87,0.5);}
-.btn-accent{background:linear-gradient(135deg,var(--accent),#00BFA5);color:#000;box-shadow:0 4px 15px rgba(67,232,216,0.3);}
-.btn-accent:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(67,232,216,0.5);}
-.btn-gold{background:linear-gradient(135deg,var(--gold),#FFA000);color:#000;box-shadow:0 4px 15px rgba(255,215,0,0.3);}
-.btn-gold:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(255,215,0,0.5);}
-.btn-sm{padding:0.45rem 0.9rem;font-size:0.85rem;}
-
-/* TABLES */
-.table-wrapper{overflow-x:auto;border-radius:12px;border:1px solid rgba(108,99,255,0.2);}
-table{width:100%;border-collapse:collapse;font-family:var(--font-ui);font-size:0.92rem;}
-thead{background:linear-gradient(135deg,rgba(108,99,255,0.3),rgba(67,232,216,0.15));}
-th{padding:0.8rem 0.6rem;text-align:left;font-weight:700;color:var(--accent);white-space:nowrap;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid rgba(108,99,255,0.3);}
-td{padding:0.65rem 0.6rem;border-bottom:1px solid rgba(108,99,255,0.1);color:var(--text);white-space:nowrap;}
-tr:hover td{background:rgba(108,99,255,0.08);}
-tr.late td{background:rgba(255,71,87,0.08);}
-tr.ot td{background:rgba(255,215,0,0.06);}
-.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.78rem;font-weight:700;font-family:var(--font-ui);}
-.badge-red{background:rgba(255,71,87,0.2);color:var(--danger);border:1px solid rgba(255,71,87,0.3);}
-.badge-green{background:rgba(0,255,136,0.15);color:var(--success);border:1px solid rgba(0,255,136,0.3);}
-.badge-gold{background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3);}
-.badge-blue{background:rgba(108,99,255,0.2);color:#A78BFA;border:1px solid rgba(108,99,255,0.4);}
-
-/* FORMS */
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
-.form-group{display:flex;flex-direction:column;gap:0.35rem;}
-.form-group label{font-family:var(--font-ui);font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
-.form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:0.65rem 0.85rem;color:var(--text);font-family:var(--font-body);font-size:0.95rem;transition:all 0.2s;outline:none;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.15);background:rgba(108,99,255,0.08);}
-.form-group select option{background:var(--card);}
-.form-group input.highlight-late{border-color:var(--danger);background:rgba(255,71,87,0.08);}
-.form-group input.highlight-ot{border-color:var(--gold);background:rgba(255,215,0,0.06);}
-
-/* CLOCK */
-.clock-display{font-family:var(--font-heading);font-size:2.5rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
-.clock-period{font-family:var(--font-ui);font-size:1rem;color:var(--gold);text-align:center;margin-top:0.25rem;}
-.clock-date{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);text-align:center;}
-
-/* LOGIN SCREEN */
-.login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--darker);}
-.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,0.2),transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(255,101,132,0.1),transparent 50%);animation:bgPulse 6s ease-in-out infinite;pointer-events:none;}
-.login-card{position:relative;z-index:1;background:rgba(17,17,40,0.95);border:1px solid rgba(108,99,255,0.3);border-radius:24px;padding:3rem 2.5rem;width:min(420px,90vw);text-align:center;backdrop-filter:blur(40px);box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(108,99,255,0.1);}
-.login-logos{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.5rem;}
-.login-logo{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.08);border:2px solid rgba(108,99,255,0.4);display:flex;align-items:center;justify-content:center;font-size:1.8rem;}
-.login-logo img,.nav-logo-item img{width:100%;height:100%;object-fit:contain;border-radius:50%;}
-.login-title{font-family:var(--font-heading);font-size:1.1rem;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.25rem;letter-spacing:0.05em;}
-.login-subtitle{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);margin-bottom:2rem;}
-.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:0.75rem;padding:0.9rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:var(--text);font-family:var(--font-ui);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;}
-.btn-google:hover{background:rgba(255,255,255,0.1);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(67,232,216,0.2);}
-.google-icon{width:24px;height:24px;}
-.login-footer{margin-top:1.5rem;font-family:var(--font-ui);font-size:0.7rem;color:var(--muted);}
-
-/* DASHBOARD HERO */
-.dashboard-hero{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(67,232,216,0.08));border:1px solid rgba(108,99,255,0.2);border-radius:20px;padding:2rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;position:relative;overflow:hidden;}
-.dashboard-hero::before{content:'';position:absolute;right:-50px;top:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(108,99,255,0.1),transparent 70%);animation:heroGlow 4s ease-in-out infinite;}
-@keyframes heroGlow{0%,100%{opacity:0.5;transform:scale(1);}50%{opacity:1;transform:scale(1.1);}}
-.hero-greeting{font-family:var(--font-heading);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:900;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.hero-role{font-family:var(--font-ui);font-size:0.85rem;color:var(--gold);margin-top:0.25rem;}
-
-/* WFB TIMECARD */
-.timecard-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
-@media(max-width:900px){.timecard-grid{grid-template-columns:1fr;}}
-.timecard-half{background:var(--card);border:1px solid rgba(108,99,255,0.2);border-radius:16px;overflow:hidden;}
-.timecard-header{background:linear-gradient(135deg,rgba(108,99,255,0.3),rgba(67,232,216,0.15));padding:0.85rem 1rem;font-family:var(--font-heading);font-size:0.88rem;color:var(--accent);letter-spacing:0.1em;}
-.tc-table th{font-size:0.75rem;padding:0.55rem 0.4rem;}
-.tc-table td{padding:0.45rem 0.4rem;font-size:0.85rem;}
-.tc-table input{background:transparent;border:none;color:var(--text);font-family:var(--font-ui);font-size:0.85rem;width:100%;outline:none;cursor:pointer;}
-.tc-table input:focus{background:rgba(108,99,255,0.1);border-radius:4px;}
-.wfb-save-indicator{font-family:var(--font-ui);font-size:0.75rem;color:var(--success);opacity:0;transition:opacity 0.5s;margin-left:0.5rem;}
-
-/* TRAVEL LOG */
-.tlog-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
-
-/* ENFORCEMENT DATA */
-.enf-controls{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;}
-.search-input{flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:10px;padding:0.6rem 1rem;color:var(--text);font-family:var(--font-body);font-size:0.85rem;outline:none;}
-.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.15);}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:8000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;}
-.modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--card);border:1px solid rgba(108,99,255,0.3);border-radius:20px;padding:2rem;width:min(600px,90vw);max-height:80vh;overflow-y:auto;transform:scale(0.9) translateY(20px);transition:transform 0.3s;}
-.modal-overlay.open .modal{transform:scale(1) translateY(0);}
-.modal-title{font-family:var(--font-heading);font-size:1.1rem;color:var(--accent);margin-bottom:1.5rem;}
-.modal-actions{display:flex;gap:1rem;justify-content:flex-end;margin-top:1.5rem;}
-
-/* EXPORT BAR */
-.export-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
-.export-label{font-family:var(--font-ui);font-size:0.8rem;color:var(--muted);margin-right:0.25rem;}
-
-/* UPLOAD ZONE */
-.upload-zone{border:2px dashed rgba(108,99,255,0.4);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(108,99,255,0.05);}
-.upload-zone:hover{border-color:var(--accent);background:rgba(67,232,216,0.05);}
-.upload-zone input{display:none;}
-.upload-icon{font-size:2rem;margin-bottom:0.5rem;}
-.upload-text{font-family:var(--font-ui);font-size:0.85rem;color:var(--muted);}
-
-/* ADMIN SECTION */
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
-.admin-card{background:var(--card);border-radius:16px;padding:1.5rem;border:1px solid rgba(108,99,255,0.2);}
-.admin-card-title{font-family:var(--font-ui);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:1rem;}
-.user-row{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid rgba(108,99,255,0.1);}
-.user-row:last-child{border-bottom:none;}
-.user-avatar-sm{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;}
-.user-info{flex:1;}
-.user-info-name{font-family:var(--font-ui);font-size:0.85rem;font-weight:700;}
-.user-info-email{font-family:var(--font-body);font-size:0.7rem;color:var(--muted);}
-.announcement-box{background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);border-radius:12px;padding:1rem;}
-.announcement-text{font-family:var(--font-ui);font-size:0.85rem;color:var(--text);margin-bottom:0.75rem;}
-
-/* SECTION DIVIDERS */
-.section-divider{display:flex;align-items:center;gap:1rem;margin:2rem 0;}
-.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(108,99,255,0.4),transparent);}
-.divider-text{font-family:var(--font-ui);font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;white-space:nowrap;}
-
-/* ALERT BANNER */
-.alert{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1rem;font-family:var(--font-ui);font-size:0.85rem;}
-.alert-info{background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:#A78BFA;}
-.alert-success{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--success);}
-.alert-warning{background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);color:var(--warning);}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  :root{--nav-h:56px;}
-  nav{padding:0 0.75rem;}
-  .nav-brand .nav-subtitle{display:none;}
-  .version-badge{display:none;}
-  .user-name{display:none;}
-  .lang-toggle{display:none;}
-  .sidebar{transform:translateX(-100%);top:var(--nav-h);z-index:950;width:min(var(--sidebar-w),80vw);}
-  .sidebar.open{transform:translateX(0);box-shadow:4px 0 30px rgba(0,0,0,0.5);}
-  .main{margin-left:0;}
-  .section{padding:1rem 0.75rem;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-  .timecard-grid{grid-template-columns:1fr;}
-  .dashboard-hero{flex-direction:column;gap:1rem;padding:1.25rem;}
-  .dashboard-hero > div:last-child{display:none;}
-  .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  table{font-size:0.75rem;}
-  th,td{padding:0.4rem 0.3rem;font-size:0.7rem;}
-  .form-grid{grid-template-columns:1fr;}
-  .modal{width:95vw;padding:1.25rem;max-height:90vh;}
-  .admin-grid{grid-template-columns:1fr;}
-  .hamburger{display:flex;}
-  .site-footer{flex-direction:column;align-items:flex-start;min-height:auto;padding:1.5rem 1rem;}
-  .footer-links{justify-content:flex-start;}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr 1fr;}
-  .export-bar{flex-direction:column;align-items:stretch;}
-  .export-bar .btn{width:100%;justify-content:center;}
-  .enf-controls{flex-direction:column;}
-  .search-input{width:100%;}
-  .clock-display{font-size:1.8rem;}
-}
-@media(min-width:769px) and (max-width:1024px){
-  :root{--sidebar-w:200px;}
-  .section{padding:1.25rem;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-}
-
-/* HOME BUTTON */
-.home-btn{display:flex;align-items:center;gap:0.6rem;margin:0.75rem 1rem 0.25rem;padding:0.6rem 1rem;background:linear-gradient(135deg,rgba(108,99,255,0.25),rgba(67,232,216,0.15));border:1px solid rgba(108,99,255,0.4);border-radius:10px;cursor:pointer;font-family:var(--font-ui);font-size:0.82rem;font-weight:700;color:var(--accent);transition:all 0.25s;text-decoration:none;}
-.home-btn:hover{background:linear-gradient(135deg,rgba(108,99,255,0.45),rgba(67,232,216,0.3));border-color:var(--accent);transform:translateX(3px);box-shadow:0 4px 15px rgba(67,232,216,0.2);}
-.home-btn svg{flex-shrink:0;}
-
-/* SCROLL REVEAL */
-.reveal{opacity:0;transform:translateY(30px);transition:all 0.7s cubic-bezier(0.16,1,0.3,1);}
-.reveal.visible{opacity:1;transform:translateY(0);}
-.glow-primary{box-shadow:0 0 20px rgba(108,99,255,0.3);}
-.glow-accent{box-shadow:0 0 20px rgba(67,232,216,0.3);}
-.text-accent{color:var(--accent);}
-.text-gold{color:var(--gold);}
-.text-muted{color:var(--muted);}
-
-/* TABS */
-.tab-bar{display:flex;gap:0.25rem;background:rgba(0,0,0,0.3);border-radius:12px;padding:0.3rem;margin-bottom:1.5rem;overflow-x:auto;}
-.tab{font-family:var(--font-ui);font-size:0.8rem;font-weight:700;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;color:var(--muted);transition:all 0.2s;white-space:nowrap;border:none;background:transparent;}
-.tab.active{background:var(--primary);color:#fff;box-shadow:0 4px 15px rgba(108,99,255,0.3);}
-
-/* CHART PLACEHOLDER */
-.chart-box{background:rgba(0,0,0,0.2);border-radius:12px;padding:1rem;height:200px;display:flex;align-items:flex-end;justify-content:space-around;gap:0.5rem;}
-.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:0.25rem;}
-.chart-bar{width:100%;border-radius:4px 4px 0 0;transition:height 0.8s cubic-bezier(0.16,1,0.3,1);min-height:4px;}
-.chart-bar-label{font-family:var(--font-ui);font-size:0.6rem;color:var(--muted);}
-.chart-bar-val{font-family:var(--font-ui);font-size:0.65rem;color:var(--text);}
-
-/* REALTIME INDICATOR */
-.realtime-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);animation:realtimePulse 1.5s ease-in-out infinite;margin-right:0.4rem;}
-@keyframes realtimePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,255,136,0.4);}50%{opacity:0.8;box-shadow:0 0 0 6px rgba(0,255,136,0);}}
-
-/* HAMBURGER */
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
-.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all 0.3s;}
-@media(max-width:768px){.hamburger{display:flex;}}
-
-/* ANNOUNCEMENT BANNER */
-.ann-banner{background:linear-gradient(90deg,rgba(108,99,255,0.3),rgba(67,232,216,0.15));border-bottom:1px solid rgba(108,99,255,0.3);padding:0.4rem 1rem;font-family:var(--font-ui);font-size:0.78rem;display:flex;align-items:center;gap:0.5rem;overflow:hidden;}
-.ann-scroll{animation:annScroll 20s linear infinite;white-space:nowrap;}
-@keyframes annScroll{from{transform:translateX(100vw);}to{transform:translateX(-100%);}}
-
-/* TOTAL ROW */
-.total-row td{font-family:var(--font-heading);font-weight:700;color:var(--gold);background:rgba(255,215,0,0.05) !important;}
-
-/* PRINT */
-@media print{
-  .sidebar,.nav,.export-bar,.enf-controls,.btn,.transition-overlay,.particles,.bg-anime{display:none !important;}
-  .main{margin-left:0;}
-  body{background:#fff;color:#000;}
-  .card,.timecard-half{border:1px solid #ccc;}
-  th,td{color:#000;}
-}
-
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:0.01ms !important;transition-duration:0.01ms !important;}
-}
-</style>
-</head>
-<body>
-
-<div class="bg-anime"></div>
-<div class="particles" id="particles"></div>
-<div class="transition-overlay" id="transOverlay"></div>
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
-
-<!-- LOGIN SCREEN -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-bg"></div>
-  <div class="login-card">
-    <div class="login-logos">
-      <div class="login-logo" title="Jata Negara"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Coat_of_arms_of_Malaysia.svg/250px-Coat_of_arms_of_Malaysia.svg.png" alt="Logo Penguatkuasaan"></div>
-      <div class="login-logo" title="JPVS"><img src="https://github.com/ttv4u1/KP/raw/main/DVS.svg" alt="Logo Penguatkuasaan"></div>
-      <div class="login-logo" title="Penguatkuasaan"><img src="https://github.com/ttv4u1/KP/raw/main/Logo%20Penguatkuasa.png" alt="Logo Penguatkuasaan"></div>
-    </div>
-    <div class="login-title">SISTEM PENGUATKUASAAN</div>
-    <div class="login-subtitle">Jabatan Perkhidmatan Veterinar & Penyembelihan<br><span style="color:var(--accent)">Portal Pengurusan Bersepadu v1.0</span></div>
-    <button class="btn-google" onclick="doLogin()">
-      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Log Masuk dengan Google
-    </button>
-    <div class="login-footer">Sistem ini dilindungi. Akses terhad kepada kakitangan yang diberi kuasa sahaja.<br>Jabatan Perkhidmatan Veterinar &amp; Penyembelihan &copy; 2025</div>
-  </div>
-</div>
-
-<!-- APP SHELL -->
-<div id="appShell" style="display:none;">
-
-<!-- ANNOUNCEMENT BANNER -->
-<div class="ann-banner" id="annBanner">
-  <span style="color:var(--gold);font-weight:700;flex-shrink:0;">📢 PENGUMUMAN:</span>
-  <span class="ann-scroll" id="annText">Selamat datang ke Portal Penguatkuasaan JPVS. Sila kemaskini rekod anda dengan segera. Mesyuarat bulanan pada 15hb setiap bulan. | Welcome to JPVS Enforcement Portal. Please update your records promptly.</span>
-</div>
-
-<!-- NAVBAR -->
-<nav id="mainNav">
-  <div style="display:flex;align-items:center;gap:1rem;">
-    <div class="hamburger" onclick="toggleSidebar()" id="hamburger">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="nav-logos">
-      <div class="nav-logo-item" title="Jata Negara"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Coat_of_arms_of_Malaysia.svg/250px-Coat_of_arms_of_Malaysia.svg.png" alt="Logo Penguatkuasaan"></div>
-      <div class="nav-logo-item" title="JPVS"><img src="https://github.com/ttv4u1/KP/raw/main/DVS.svg" alt="Logo Penguatkuasaan"></div>
-      <div class="nav-logo-item" title="Penguatkuasaan"><img src="https://github.com/ttv4u1/KP/raw/main/Logo%20Penguatkuasa.png" alt="Logo Penguatkuasaan"></div>
-    </div>
-    <div class="nav-brand">
-      <div class="nav-title">Sistem PEgurusan Data FirFleet</div>
-      <div class="nav-subtitle">Portal Pengurusan Bersepadu</div>
-    </div>
-    <span class="version-badge">v1.0</span>
-  </div>
-  <div class="nav-actions">
-    <div style="text-align:center;">
-      <div class="clock-display" id="navClock">--:--:--</div>
-      <div class="clock-period" id="navPeriod">--</div>
-    </div>
-    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</button>
-    <div class="user-profile" id="userProfile" onclick="toggleProfileMenu()">
-      <div class="user-avatar" id="userAvatar">?</div>
-      <div class="user-name" id="userName">...</div>
-    </div>
-    <button id="logoutBtn" class="btn btn-danger btn-sm" onclick="signOut()" title="Log Keluar" style="display:flex;align-items:center;gap:0.4rem;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Log Keluar
-    </button>
-  </div>
-</nav>
-<div class="sidebar" id="sidebar">
-  <!-- Home / Back to Login -->
-  <a class="home-btn" onclick="signOut()" title="Kembali ke halaman utama / Log Keluar">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    Halaman Utama
-  </a>
-  <div class="nav-section-title" data-i18n="nav.main">UTAMA</div>
-  <div class="nav-item active" onclick="showSection('dashboard',this)" data-i18n="nav.dashboard">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-    Dashboard
-  </div>
-  <div class="nav-section-title" data-i18n="nav.records">REKOD</div>
-  <div class="nav-item" onclick="showSection('wfb',this)">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-    <span data-i18n="nav.wfb">Kad Waktu (WFB)</span>
-  </div>
-  <div class="nav-item" onclick="showSection('travel',this)">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-    <span data-i18n="nav.travel">Log Perjalanan</span>
-  </div>
-  <div class="nav-item" onclick="showSection('enforcement',this)">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-    <span data-i18n="nav.enforcement">Data Penguatkuasa</span>
-  </div>
-  <div class="nav-section-title" data-i18n="nav.data">DATA & EKSPORT</div>
-  <div class="nav-item" onclick="showSection('data',this)">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-    <span data-i18n="nav.data">Data & Muat Turun</span>
-  </div>
-  <div class="nav-section-title" data-i18n="nav.admin">PENTADBIRAN</div>
-  <div class="nav-item" id="adminNavItem" onclick="showSection('admin',this)">
-    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-    <span data-i18n="nav.admin">Super Admin</span>
-  </div>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="main">
-
-<!-- DASHBOARD -->
-<div class="section active" id="sec-dashboard">
-  <div class="dashboard-hero reveal">
-    <div>
-      <div class="hero-greeting" id="greetingText">Selamat Pagi, Pengguna</div>
-      <div class="hero-role">
-        <span class="realtime-dot"></span>
-        <span id="userRoleDisplay">Pegawai Penguatkuasa</span> — JPVS Portal
-      </div>
-      <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="showSection('wfb',null)">Rekod Waktu</button>
-        <button class="btn btn-accent" onclick="showSection('enforcement',null)">Tambah Kes</button>
-        <button class="btn btn-gold" onclick="showSection('travel',null)">Log Perjalanan</button>
-      </div>
-    </div>
-    <div style="text-align:center;flex-shrink:0;">
-      <div class="clock-display" id="dashClock" style="font-size:3rem;">--:--:--</div>
-      <div class="clock-period" id="dashPeriod" style="font-size:1.2rem;">--</div>
-      <div class="clock-date" id="dashDate">--</div>
-    </div>
-  </div>
-
-  <div class="stats-grid reveal">
-    <div class="stat-card"><div class="stat-number" id="statCases">0</div><div class="stat-label">Kes Bulan Ini</div></div>
-    <div class="stat-card"><div class="stat-number" id="statRampasan">RM 0</div><div class="stat-label">Nilai Rampasan</div></div>
-    <div class="stat-card"><div class="stat-number" id="statTrips">0</div><div class="stat-label">Perjalanan</div></div>
-    <div class="stat-card"><div class="stat-number" id="statKM">0 km</div><div class="stat-label">Jumlah KM</div></div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="reveal">
-    <div class="card">
-      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Rampasan Bulan Ini</div>
-      <div class="chart-box" id="dashChart"></div>
-    </div>
-    <div class="card">
-      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Pengumuman Terkini</div>
-      <div id="annDisplay" style="font-family:var(--font-ui);font-size:0.85rem;color:var(--text);line-height:1.6;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- WFB TIME CARD -->
-<div class="section" id="sec-wfb">
-  <div class="page-header reveal">
-    <div class="page-title">Kad Mencatat Waktu (WFB)</div>
-    <div class="page-subtitle">Rekod kehadiran dan waktu bekerja — <span id="wfbMonth">--</span></div>
-  </div>
-  <div class="card reveal" style="margin-bottom:1.5rem;">
-    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
-      <div class="form-group"><label>Nama</label><input type="text" id="wfbNama" placeholder="Nama Penuh" onchange="triggerWFBHeaderSave()"></div>
-      <div class="form-group"><label>Kem./Jab.</label><input type="text" id="wfbKem" placeholder="Kementerian/Jabatan" onchange="triggerWFBHeaderSave()"></div>
-      <div class="form-group"><label>Bahagian/Seksyen</label><input type="text" id="wfbBahagian" placeholder="Bahagian" onchange="triggerWFBHeaderSave()"></div>
-      <div class="form-group"><label>Bulan</label><input type="month" id="wfbBulan" onchange="renderWFB()"></div>
-    </div>
-  </div>
-  <div class="export-bar reveal">
-    <span class="export-label">Eksport:</span>
-    <button class="btn btn-success btn-sm" onclick="exportWFB('csv')">CSV</button>
-    <button class="btn btn-primary btn-sm" onclick="exportWFB('excel')">Excel</button>
-    <button class="btn btn-accent btn-sm" onclick="exportWFB('json')">JSON</button>
-    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
-  </div>
-  <div class="timecard-grid reveal" id="wfbGrid"></div>
-</div>
-
-<!-- TRAVEL LOG -->
-<div class="section" id="sec-travel">
-  <div class="page-header reveal">
-    <div class="page-title">Log Perjalanan</div>
-    <div class="page-subtitle">Rekod perjalanan rasmi — auto-kira jarak & kos</div>
-  </div>
-  <div class="card reveal" style="margin-bottom:1.5rem;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-      <div style="font-family:var(--font-ui);font-size:0.8rem;font-weight:700;color:var(--accent);">Tambah Rekod Perjalanan Baharu</div>
-      <button class="btn btn-primary btn-sm" onclick="openTravelModal()">+ Tambah</button>
-    </div>
-    <div class="tlog-info-grid">
-      <div class="stat-card"><div class="stat-number" id="tlogTotalKM">0</div><div class="stat-label">Jumlah KM</div></div>
-      <div class="stat-card"><div class="stat-number" id="tlogTotalKos">RM 0</div><div class="stat-label">Jumlah Kos</div></div>
-      <div class="stat-card"><div class="stat-number" id="tlogTotalTrips">0</div><div class="stat-label">Perjalanan</div></div>
-      <div class="stat-card"><div class="stat-number" id="tlogTotalLiter">0 L</div><div class="stat-label">Jumlah Liter</div></div>
-    </div>
-  </div>
-  <div class="export-bar reveal">
-    <span class="export-label">Eksport:</span>
-    <button class="btn btn-success btn-sm" onclick="exportTravel('csv')">CSV</button>
-    <button class="btn btn-primary btn-sm" onclick="exportTravel('excel')">Excel</button>
-    <button class="btn btn-accent btn-sm" onclick="exportTravel('json')">JSON</button>
-    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
-  </div>
-  <div class="table-wrapper reveal">
-    <table id="travelTable">
-      <thead><tr>
-        <th>BIL</th><th>TARIKH</th><th>MASA PERGI</th><th>MASA BALIK</th><th>PEMANDU</th>
-        <th>TUJUAN</th><th>PELULUS</th><th>ODO MULA</th><th>ODO AKHIR</th><th>JARAK KM</th>
-        <th>LITER</th><th>KOS (RM)</th><th>NO RESIT</th><th>NOTA</th><th>TINDAKAN</th>
-      </tr></thead>
-      <tbody id="travelBody"></tbody>
-      <tfoot><tr class="total-row"><td colspan="9" style="text-align:right;font-family:var(--font-ui);font-size:0.8rem;">JUMLAH:</td><td id="tlogFtKM">0</td><td id="tlogFtL">0</td><td id="tlogFtKos">RM 0</td><td colspan="3"></td></tr></tfoot>
-    </table>
-  </div>
-</div>
-
-<!-- ENFORCEMENT DATA -->
-<div class="section" id="sec-enforcement">
-  <div class="page-header reveal">
-    <div class="page-title">Data Penguatkuasa</div>
-    <div class="page-subtitle">Rekod rampasan dan kes penguatkuasaan — <span class="realtime-dot"></span>Realtime</div>
-  </div>
-  <div class="enf-controls reveal">
-    <input type="text" class="search-input" id="enfSearch" placeholder="Cari kes, lokasi, penguatkuasa..." oninput="filterEnf()">
-    <button class="btn btn-primary" onclick="openEnfModal()">+ Tambah Kes</button>
-    <select style="background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:0.5rem 0.75rem;color:var(--text);font-family:var(--font-ui);font-size:0.8rem;outline:none;" id="enfFilterBulan" onchange="filterEnf()">
-      <option value="">Semua Bulan</option>
-    </select>
-  </div>
-  <div class="export-bar reveal">
-    <span class="export-label">Eksport:</span>
-    <button class="btn btn-success btn-sm" onclick="exportEnf('csv')">CSV</button>
-    <button class="btn btn-primary btn-sm" onclick="exportEnf('excel')">Excel</button>
-    <button class="btn btn-accent btn-sm" onclick="exportEnf('json')">JSON</button>
-    <button class="btn btn-danger btn-sm" onclick="exportEnf('txt')">Notepad</button>
-    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
-  </div>
-  <div class="table-wrapper reveal" style="max-height:60vh;overflow-y:auto;">
-    <table id="enfTable">
-      <thead>
-        <tr>
-          <th>BIL</th><th>TAHUN</th><th>BULAN</th><th>PENGUATKUASA</th><th>KATEGORI KES</th>
-          <th>NO REPOT POLIS</th><th>TARIKH</th><th>MASA</th><th>LOKASI</th><th>KESALAHAN</th>
-          <th>UNDANG-UNDANG</th><th>NO KES IP</th><th>JENIS RAMPASAN</th>
-          <th>LEMBU</th><th>KERBAU</th><th>KAMBING</th><th>BEBIRI</th><th>BABI</th><th>AYAM</th>
-          <th>K.LEMBU</th><th>K.KERBAU</th><th>K.KAMBING</th><th>K.BABI</th><th>K.BABI S/B</th>
-          <th>K.AYAM</th><th>P.ITIK S/B</th><th>P.AYAM S/B</th><th>P.BABI S/B</th>
-          <th>HAI TIN</th><th>ANJING</th><th>KUCING</th><th>ARNAB</th><th>BURUNG</th>
-          <th>HAMSTER</th><th>LAIN-LAIN</th>
-          <th>JML KDR</th><th>JML PENGANGKUT</th>
-          <th>RM (EKOR/KG)</th><th>RM (KDR)</th><th>RM (PENGANGKUT)</th>
-          <th>RM (LAIN)</th><th>JML NILAI RM</th>
-          <th>KES SERAHAN</th><th>CATATAN</th><th>TINDAKAN</th>
-        </tr>
-      </thead>
-      <tbody id="enfBody"></tbody>
-      <tfoot>
-        <tr class="total-row">
-          <td colspan="13" style="text-align:right;">JUMLAH:</td>
-          <td id="e-lembu">0</td><td id="e-kerbau">0</td><td id="e-kambing">0</td>
-          <td id="e-bebiri">0</td><td id="e-babi">0</td><td id="e-ayam">0</td>
-          <td id="e-klembu">0</td><td id="e-kkerbau">0</td><td id="e-kkambing">0</td>
-          <td id="e-kbabi">0</td><td id="e-kbabisb">0</td><td id="e-kayam">0</td>
-          <td id="e-pitik">0</td><td id="e-payam">0</td><td id="e-pbabi">0</td>
-          <td id="e-tin">0</td><td id="e-anjing">0</td><td id="e-kucing">0</td>
-          <td id="e-arnab">0</td><td id="e-burung">0</td><td id="e-hamster">0</td>
-          <td id="e-lain">0</td><td id="e-jkdr">0</td><td id="e-jpengangkut">0</td>
-          <td id="e-rmek">RM0</td><td id="e-rmkdr">RM0</td><td id="e-rmpengangkut">RM0</td>
-          <td id="e-rmlain">RM0</td><td id="e-rmnilai">RM0</td>
-          <td colspan="3"></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-
-<!-- DATA & EXPORT -->
-<div class="section" id="sec-data">
-  <div class="page-header reveal">
-    <div class="page-title">Data & Muat Turun</div>
-    <div class="page-subtitle">Semua rekod, fail upload, dan eksport sistem</div>
-  </div>
-  <div class="tab-bar reveal">
-    <button class="tab active" onclick="switchDataTab('uploads',this)">Fail Upload</button>
-    <button class="tab" onclick="switchDataTab('summary',this)">Ringkasan</button>
-    <button class="tab" onclick="switchDataTab('export',this)">Eksport Penuh</button>
-  </div>
-  <div id="dataTab-uploads" class="reveal">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
-      <div class="card">
-        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Resit Minyak & TNG</div>
-        <div class="upload-zone" onclick="document.getElementById('uploadMinyak').click()">
-          <input type="file" id="uploadMinyak" accept="image/*,.pdf" multiple onchange="handleUpload(this,'minyak')">
-          <div class="upload-icon">🧾</div>
-          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG, PDF • Maks 10MB</small></div>
-        </div>
-        <div id="uploadMinyakList" style="margin-top:1rem;"></div>
-      </div>
-      <div class="card">
-        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Odometer & Gambar Kenderaan</div>
-        <div class="upload-zone" onclick="document.getElementById('uploadOdo').click()">
-          <input type="file" id="uploadOdo" accept="image/*" multiple onchange="handleUpload(this,'odo')">
-          <div class="upload-icon">📷</div>
-          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG • Maks 10MB</small></div>
-        </div>
-        <div id="uploadOdoList" style="margin-top:1rem;"></div>
-      </div>
-      <div class="card">
-        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Fail Kes & Laporan</div>
-        <div class="upload-zone" onclick="document.getElementById('uploadKes').click()">
-          <input type="file" id="uploadKes" accept="image/*,.pdf,.doc,.docx" multiple onchange="handleUpload(this,'kes')">
-          <div class="upload-icon">📁</div>
-          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG, PDF, DOC • Maks 20MB</small></div>
-        </div>
-        <div id="uploadKesList" style="margin-top:1rem;"></div>
-      </div>
-    </div>
-  </div>
-  <div id="dataTab-summary" style="display:none;" class="reveal">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number" id="sumTotalKes">0</div><div class="stat-label">Jumlah Kes</div></div>
-      <div class="stat-card"><div class="stat-number" id="sumNilaiRM">RM 0</div><div class="stat-label">Nilai Rampasan</div></div>
-      <div class="stat-card"><div class="stat-number" id="sumPerjalanan">0</div><div class="stat-label">Perjalanan</div></div>
-      <div class="stat-card"><div class="stat-number" id="sumFail">0</div><div class="stat-label">Fail Upload</div></div>
-    </div>
-    <div class="card" style="margin-top:1.5rem;">
-      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Carta Rampasan Mengikut Jenis</div>
-      <div class="chart-box" id="summaryChart"></div>
-    </div>
-  </div>
-  <div id="dataTab-export" style="display:none;" class="reveal">
-    <div class="card">
-      <div style="font-family:var(--font-ui);font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:1.5rem;">Eksport Semua Data</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
-        <button class="btn btn-success" onclick="exportAll('csv')">Eksport CSV</button>
-        <button class="btn btn-primary" onclick="exportAll('excel')">Eksport Excel</button>
-        <button class="btn btn-accent" onclick="exportAll('json')">Eksport JSON</button>
-        <button class="btn btn-danger" onclick="exportAll('txt')">Eksport Notepad</button>
-        <button class="btn btn-gold" onclick="exportAll('android')">Android Note</button>
-        <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="exportAll('ios')">iPhone Note</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div class="section" id="sec-admin">
-  <div class="page-header reveal">
-    <div class="page-title">Super Admin</div>
-    <div class="page-subtitle">Pengurusan pengguna, peranan, pengumuman sistem, dan data Baserow realtime</div>
-  </div>
-  <div class="alert alert-warning reveal">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    Panel ini hanya untuk Super Admin. Perubahan akan berkuat kuasa serta-merta.
-  </div>
-  <div class="admin-grid reveal">
-    <div class="admin-card">
-      <div class="admin-card-title">Senarai Pengguna</div>
-      <div id="userListAdmin"></div>
-      <button class="btn btn-primary btn-sm" style="margin-top:1rem;width:100%;" onclick="openAddUserModal()">+ Tambah Pengguna</button>
-    </div>
-    <div class="admin-card">
-      <div class="admin-card-title">Super Admin</div>
-      <div id="superAdminList"></div>
-      <button class="btn btn-gold btn-sm" style="margin-top:1rem;width:100%;" onclick="openAddAdminModal()">+ Tambah Super Admin</button>
-    </div>
-    <div class="admin-card" style="grid-column:span 1;">
-      <div class="admin-card-title">Pengumuman Sistem</div>
-      <div class="announcement-box">
-        <div class="announcement-text" id="currentAnn">Tiada pengumuman semasa</div>
-        <textarea id="newAnnText" rows="3" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:0.6rem;color:var(--text);font-family:var(--font-body);font-size:0.85rem;resize:vertical;outline:none;margin-bottom:0.75rem;" placeholder="Taip pengumuman baharu..."></textarea>
-        <button class="btn btn-primary btn-sm" onclick="saveAnnouncement()">Simpan Pengumuman</button>
-      </div>
-    </div>
-    <div class="admin-card" style="grid-column:span 2;">
-      <div class="admin-card-title">📊 Baserow Spreadsheet Integration (Realtime)</div>
-      <div id="baserowStats" style="margin-bottom:1rem;"></div>
-      <button class="btn btn-accent btn-sm" onclick="initBaserowSync()" style="margin-bottom:1rem;width:100%;">🔄 Sinkron Baserow</button>
-      <div id="baserowTableContainer" style="max-height:300px;overflow-y:auto;"></div>
-    </div>
-  </div>
-</div>
-
-</div><!-- end main -->
-
-<footer class="site-footer">
-  <div>
-    <div style="font-family:var(--font-heading);font-size:1.2rem;margin-bottom:0.5rem;">JPVS Portal Footer</div>
-    <div class="footer-copy">Sistem Penguatkuasaan Data menggunakan visual baru untuk memperkukuh identiti dan pengalaman. Jabatan Perkhidmatan Veterinar &amp; Penyembelihan © 2026.</div>
-  </div>
-  <div class="footer-links">
-    <a href="#sec-dashboard">Dashboard</a>
-    <a href="#sec-enforcement">Data Penguatkuasa</a>
-    <a href="#sec-admin">Super Admin</a>
-  </div>
-</footer>
-
-</div><!-- end appShell -->
-
-<!-- MODALS -->
-<div class="modal-overlay" id="travelModal">
-  <div class="modal">
-    <div class="modal-title">Tambah Log Perjalanan</div>
-    <div class="form-grid">
-      <div class="form-group"><label>Tarikh</label><input type="date" id="tl-tarikh"></div>
-      <div class="form-group"><label>Masa Pergi</label><input type="time" id="tl-masapergi"></div>
-      <div class="form-group"><label>Masa Balik</label><input type="time" id="tl-masabalik"></div>
-      <div class="form-group"><label>Pemandu</label><input type="text" id="tl-pemandu" placeholder="Nama pemandu"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Tujuan Perjalanan</label><input type="text" id="tl-tujuan" placeholder="Destinasi / tujuan rasmi"></div>
-      <div class="form-group"><label>Pelulus</label><input type="text" id="tl-pelulus" placeholder="Nama pelulus"></div>
-      <div class="form-group"><label>Pengguna Kenderaan</label><input type="text" id="tl-pengguna" placeholder="Nama pengguna"></div>
-      <div class="form-group"><label>Odometer Mula (km)</label><input type="number" id="tl-odomula" placeholder="0" oninput="calcOdo()"></div>
-      <div class="form-group"><label>Odometer Akhir (km)</label><input type="number" id="tl-odoakhir" placeholder="0" oninput="calcOdo()"></div>
-      <div class="form-group"><label>Jarak KM (Auto)</label><input type="number" id="tl-jarak" readonly style="opacity:0.6;"></div>
-      <div class="form-group"><label>Liter Minyak</label><input type="number" id="tl-liter" placeholder="0.00" step="0.01" oninput="calcFuelCost()"></div>
-      <div class="form-group"><label>Kos RM (Auto)</label><input type="number" id="tl-kos" placeholder="0.00" step="0.01"></div>
-      <div class="form-group"><label>No. Resit</label><input type="text" id="tl-resit" placeholder="e.g. RCP-2025-001"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Nota</label><textarea id="tl-nota" rows="2" placeholder="Nota tambahan..."></textarea></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="closeModal('travelModal')">Batal</button>
-      <button class="btn btn-primary" onclick="saveTravelLog()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="enfModal" style="z-index:8001;">
-  <div class="modal" style="width:min(900px,95vw);">
-    <div class="modal-title">Tambah Data Penguatkuasa</div>
-    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
-      <div class="form-group"><label>Tahun</label><input type="number" id="enf-tahun" value="2025" min="2020" max="2099"></div>
-      <div class="form-group"><label>Bulan</label>
-        <select id="enf-bulan"><option value="">Pilih</option><option>Januari</option><option>Februari</option><option>Mac</option><option>April</option><option>Mei</option><option>Jun</option><option>Julai</option><option>Ogos</option><option>September</option><option>Oktober</option><option>November</option><option>Disember</option></select>
-      </div>
-      <div class="form-group"><label>Penguatkuasa</label><input type="text" id="enf-penguatkuasa" placeholder="Nama"></div>
-      <div class="form-group"><label>Kategori Kes</label>
-        <select id="enf-kategori"><option value="">Pilih</option><option>Kesalahan Penyembelihan</option><option>Kesalahan Pengangkutan</option><option>Kesalahan Penjualan</option><option>Kesalahan Import/Eksport</option><option>Kesalahan Premis</option><option>Lain-lain</option></select>
-      </div>
-      <div class="form-group"><label>No. Repot Polis</label><input type="text" id="enf-nopolis" placeholder="e.g. P/001/2025"></div>
-      <div class="form-group"><label>Tarikh Kejadian</label><input type="date" id="enf-tarikh"></div>
-      <div class="form-group"><label>Masa Kejadian</label><input type="time" id="enf-masa"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Lokasi Kejadian</label><input type="text" id="enf-lokasi" placeholder="Alamat lengkap lokasi"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Kesalahan</label><input type="text" id="enf-kesalahan" placeholder="Perihal kesalahan"></div>
-      <div class="form-group"><label>Undang-undang</label><input type="text" id="enf-undang" placeholder="e.g. Akta 309 S.8"></div>
-      <div class="form-group"><label>No. Kes IP</label><input type="text" id="enf-noip" placeholder="e.g. IP/001/2025"></div>
-      <div class="form-group"><label>Jenis Rampasan</label><input type="text" id="enf-jenis" placeholder="e.g. Haiwan hidup"></div>
-    </div>
-    <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Butiran Rampasan (Kuantiti)</div><div class="divider-line"></div></div>
-    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">
-      <div class="form-group"><label>Lembu</label><input type="number" id="enf-lembu" value="0" min="0"></div>
-      <div class="form-group"><label>Kerbau</label><input type="number" id="enf-kerbau" value="0" min="0"></div>
-      <div class="form-group"><label>Kambing</label><input type="number" id="enf-kambing" value="0" min="0"></div>
-      <div class="form-group"><label>Bebiri</label><input type="number" id="enf-bebiri" value="0" min="0"></div>
-      <div class="form-group"><label>Babi</label><input type="number" id="enf-babi" value="0" min="0"></div>
-      <div class="form-group"><label>Ayam</label><input type="number" id="enf-ayam" value="0" min="0"></div>
-      <div class="form-group"><label>Karkas Lembu</label><input type="number" id="enf-klembu" value="0" min="0"></div>
-      <div class="form-group"><label>Karkas Kerbau</label><input type="number" id="enf-kkerbau" value="0" min="0"></div>
-      <div class="form-group"><label>Karkas Kambing</label><input type="number" id="enf-kkambing" value="0" min="0"></div>
-      <div class="form-group"><label>Karkas Babi</label><input type="number" id="enf-kbabi" value="0" min="0"></div>
-      <div class="form-group"><label>K.Babi S/Beku</label><input type="number" id="enf-kbabisb" value="0" min="0"></div>
-      <div class="form-group"><label>Karkas Ayam</label><input type="number" id="enf-kayam" value="0" min="0"></div>
-      <div class="form-group"><label>Prd. Itik S/Beku</label><input type="number" id="enf-pitik" value="0" min="0"></div>
-      <div class="form-group"><label>Prd. Ayam S/Beku</label><input type="number" id="enf-payam" value="0" min="0"></div>
-      <div class="form-group"><label>Prd. Babi S/Beku</label><input type="number" id="enf-pbabi" value="0" min="0"></div>
-      <div class="form-group"><label>Haiwan (Tin)</label><input type="number" id="enf-tin" value="0" min="0"></div>
-      <div class="form-group"><label>Anjing</label><input type="number" id="enf-anjing" value="0" min="0"></div>
-      <div class="form-group"><label>Kucing</label><input type="number" id="enf-kucing" value="0" min="0"></div>
-      <div class="form-group"><label>Arnab</label><input type="number" id="enf-arnab" value="0" min="0"></div>
-      <div class="form-group"><label>Burung</label><input type="number" id="enf-burung" value="0" min="0"></div>
-      <div class="form-group"><label>Hamster</label><input type="number" id="enf-hamster" value="0" min="0"></div>
-      <div class="form-group"><label>Lain-lain</label><input type="text" id="enf-lain" value="0"></div>
-    </div>
-    <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Kenderaan & Nilai (RM)</div><div class="divider-line"></div></div>
-    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
-      <div class="form-group"><label>Jml Kenderaan</label><input type="number" id="enf-jkdr" value="0" min="0" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>Jml Pengangkut/Kontena</label><input type="number" id="enf-jpengangkut" value="0" min="0" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>RM (Ekor/KG)</label><input type="number" id="enf-rmek" value="0" step="0.01" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>RM (Kenderaan)</label><input type="number" id="enf-rmkdr" value="0" step="0.01" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>RM (Pengangkut)</label><input type="number" id="enf-rmpengangkut" value="0" step="0.01" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>RM (Lain-lain)</label><input type="number" id="enf-rmlain" value="0" step="0.01" oninput="calcEnfTotal()"></div>
-      <div class="form-group"><label>JUMLAH NILAI RM (Auto)</label><input type="number" id="enf-rmnilai" readonly style="opacity:0.7;color:var(--gold);font-weight:700;"></div>
-      <div class="form-group"><label>Kes Serahan</label><select id="enf-serahan"><option value="">Pilih</option><option>Mahkamah</option><option>Kompaun</option><option>Dilepaskan</option><option>Dalam Siasatan</option></select></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Catatan</label><textarea id="enf-catatan" rows="2"></textarea></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="closeModal('enfModal')">Batal</button>
-      <button class="btn btn-primary" onclick="saveEnfData()">Simpan Kes</button>
-    </div>
-  </div>
-</div>
-
-<!-- No external Supabase CDN needed — using direct REST API calls -->
+<!-- 
+  GOOGLE SHEETS REALTIME INTEGRATION SCRIPT
+  Add this to your index.html just before closing </body> tag
+  
+  Configuration: Update these values
+  ===================================
+-->
 
 <script>
-const SUPABASE_URL = 'https://kavuylmowzmdupyilhdk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdnV5bG1vd3ptZHVweWlsaGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjI4OTQsImV4cCI6MjA5MzM5ODg5NH0.mSD9Mnpa1HavWMMeIi6RH427ru4xsUwsdKDcHw6QVII';
+// ========== GOOGLE SHEETS CONFIGURATION ==========
+const GOOGLE_CONFIG = {
+  clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  spreadsheetId: 'YOUR_SPREADSHEET_ID',
+  sheetName: 'Sheet1',
+  range: 'Sheet1!A:H', // Range to read/write (adjust columns as needed)
+  scope: 'https://www.googleapis.com/auth/spreadsheets',
+  discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+};
 
-// ─── GOOGLE SHEETS INTEGRATION ────────────────────────────────────────────────
-// Selepas deploy GOOGLE_SHEETS_SETUP.gs sebagai Web App, letak URL di sini:
-const GS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz1EDj4xShsXRgywqv_Loan4TN0RHMhX6Q465zw4_qp2dCiHd3lTjTTjQYyNctJShq4SA/exec';
-const GS_SECRET   = 'JPVS_FIRFLEET_2025_SECRET';
-const GS_ENABLED  = GS_ENDPOINT.length > 10;
+// ========== GOOGLE SHEETS SERVICE CLASS ==========
+class GoogleSheetsService {
+  constructor(config) {
+    this.config = config;
+    this.isAuthorized = false;
+    this.tokenClient = null;
+  }
 
-// Queue MESTI dideklarasi SEBELUM syncToGS (elak temporal dead zone)
-const gsQueue = [];
+  // Initialize Google API
+  async init() {
+    try {
+      await gapi.client.init({
+        apiKey: undefined, // Not needed for OAuth
+        clientId: this.config.clientId,
+        discoveryDocs: this.config.discoveryDocs,
+        scopes: [this.config.scope]
+      });
 
-// Hantar data ke Google Sheets (fire-and-forget, tidak block UI)
-async function syncToGS(action, payload) {
-  if (!GS_ENABLED || !currentUser) return;
-  try {
-    const enriched = {
-      ...payload,
-      user_id      : currentUser.id,
-      nama_pengguna: currentUser.name
-    };
-    const res = await fetch(GS_ENDPOINT, {
-      method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ token: GS_SECRET, action, payload: enriched })
-    });
-    if (!res.ok) console.warn('[GS] HTTP', res.status);
-    else console.log('[GS] ✓', action);
-  } catch (e) {
-    console.warn('[GS] sync error:', e.message);
-    gsQueue.push({ action, payload, ts: Date.now() });
+      // Set token client for OAuth
+      this.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: this.config.clientId,
+        scope: this.config.scope,
+        callback: (resp) => {
+          this.isAuthorized = true;
+          console.log('✓ Google OAuth authorized');
+        }
+      });
+
+      console.log('✓ Google Sheets Service initialized');
+    } catch (err) {
+      console.error('Failed to initialize Google Sheets:', err);
+    }
+  }
+
+  // Request OAuth authorization
+  async authorize() {
+    if (gapi.client.getToken() === null) {
+      this.tokenClient.requestAccessToken({prompt: 'consent'});
+    } else {
+      this.tokenClient.requestAccessToken({prompt: ''});
+    }
+  }
+
+  // Check authorization status
+  isAuthorized() {
+    return gapi.client.getToken() !== null;
+  }
+
+  // Get data from Google Sheet
+  async getData(range = null) {
+    try {
+      range = range || this.config.range;
+      const response = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: this.config.spreadsheetId,
+        range: range
+      });
+
+      const values = response.result.values || [];
+      console.log('✓ Retrieved', values.length, 'rows from Google Sheets');
+      return values;
+    } catch (err) {
+      console.error('Error reading Google Sheets:', err);
+      return [];
+    }
+  }
+
+  // Append data to Google Sheet
+  async appendData(values) {
+    try {
+      const resource = {
+        values: Array.isArray(values[0]) ? values : [values]
+      };
+
+      const response = await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: this.config.spreadsheetId,
+        range: this.config.range,
+        valueInputOption: 'RAW',
+        resource: resource
+      });
+
+      console.log('✓ Data appended:', response.result.updates.updatedRows, 'rows');
+      return response;
+    } catch (err) {
+      console.error('Error appending data:', err);
+      return null;
+    }
+  }
+
+  // Update specific range in Google Sheet
+  async updateData(range, values) {
+    try {
+      const resource = {
+        values: Array.isArray(values[0]) ? values : [values]
+      };
+
+      const response = await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: this.config.spreadsheetId,
+        range: range,
+        valueInputOption: 'RAW',
+        resource: resource
+      });
+
+      console.log('✓ Data updated:', response.result.updatedRows, 'rows');
+      return response;
+    } catch (err) {
+      console.error('Error updating data:', err);
+      return null;
+    }
+  }
+
+  // Batch update (for multiple operations)
+  async batchUpdate(requests) {
+    try {
+      const response = await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: this.config.spreadsheetId,
+        resource: { requests: requests }
+      });
+
+      console.log('✓ Batch update completed');
+      return response;
+    } catch (err) {
+      console.error('Error in batch update:', err);
+      return null;
+    }
+  }
+
+  // Get range in A1 notation
+  getRange(sheet, startRow, startCol, endRow, endCol) {
+    const colToLetter = (col) => String.fromCharCode(65 + col);
+    return `${sheet}!${colToLetter(startCol)}${startRow}:${colToLetter(endCol)}${endRow}`;
   }
 }
 
-// Retry queue setiap 10 saat
-setInterval(async () => {
-  if (!GS_ENABLED || gsQueue.length === 0 || !currentUser) return;
-  const item = gsQueue.shift();
-  await syncToGS(item.action, item.payload);
-}, 10000);
-// ──────────────────────────────────────────────────────────────────────────────
+// ========== REALTIME SYNC SERVICE ==========
+class RealtimeSyncService {
+  constructor(sheetsService) {
+    this.sheets = sheetsService;
+    this.syncInterval = 5000; // Sync every 5 seconds
+    this.isSyncing = false;
+    this.lastSyncData = null;
+    this.syncCallbacks = [];
+  }
 
-// ─── Minimal Supabase Auth client (no CDN required) ───────────────────────────
-// Implements only what we need: signInWithOAuth, getSession, signOut, onAuthStateChange
-const supabase = (() => {
-  const BASE = SUPABASE_URL + '/auth/v1';
-  const HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
-  let _session = null;
-  let _listeners = [];
+  // Register callback for data changes
+  onDataChange(callback) {
+    this.syncCallbacks.push(callback);
+  }
 
-  // Persist session in localStorage
-  const STORAGE_KEY = 'jpvs_session';
-  function saveSession(s){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch(e){} }
-  function loadSession(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); }catch(e){ return null; } }
-  function clearSession(){ try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} }
-  function notify(event, session){ _listeners.forEach(fn=>{ try{ fn(event,session); }catch(e){} }); }
+  // Start realtime sync polling
+  startSync() {
+    console.log('🔄 Starting realtime sync...');
+    this.syncLoop();
+  }
 
-  // Parse session from URL hash (after OAuth redirect)
-  function parseHashSession(){
-    const hash = window.location.hash.substring(1);
-    if(!hash) return null;
-    const params = {};
-    hash.split('&').forEach(p=>{ const [k,v]=p.split('='); if(k) params[k]=decodeURIComponent(v||''); });
-    if(params.access_token && params.token_type){
-      // Build a session object from hash params
-      let user = null;
+  // Stop realtime sync
+  stopSync() {
+    console.log('⏸️ Stopping realtime sync');
+    this.isSyncing = false;
+  }
+
+  // Main sync loop
+  async syncLoop() {
+    this.isSyncing = true;
+    while (this.isSyncing) {
       try {
-        // Decode JWT payload (base64)
-        const payload = params.access_token.split('.')[1];
-        const decoded = JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
-        user = {
-          id: decoded.sub,
-          email: decoded.email || '',
-          app_metadata: decoded.app_metadata || {},
-          user_metadata: decoded.user_metadata || {}
-        };
-      } catch(e){ console.warn('JWT decode error', e); }
-      const session = {
-        access_token: params.access_token,
-        refresh_token: params.refresh_token || '',
-        expires_in: parseInt(params.expires_in||'3600'),
-        token_type: params.token_type,
-        user: user
-      };
-      // Clean hash from URL without reload
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-      return session;
-    }
-    return null;
-  }
-
-  const auth = {
-    onAuthStateChange(callback){
-      _listeners.push(callback);
-      // Fire immediately with current session
-      const s = _session || loadSession();
-      if(s){ _session = s; callback('INITIAL_SESSION', s); }
-      else { callback('INITIAL_SESSION', null); }
-      return { data: { subscription: { unsubscribe(){ _listeners = _listeners.filter(f=>f!==callback); } } } };
-    },
-
-    async getSession(){
-      if(_session) return { data: { session: _session }, error: null };
-      // Check URL hash first (OAuth redirect)
-      const hashSession = parseHashSession();
-      if(hashSession){ _session = hashSession; saveSession(hashSession); notify('SIGNED_IN', hashSession); return { data: { session: hashSession }, error: null }; }
-      // Check localStorage
-      const stored = loadSession();
-      if(stored){ _session = stored; return { data: { session: stored }, error: null }; }
-      return { data: { session: null }, error: null };
-    },
-
-    async signInWithOAuth({ provider, options }){
-      // Build the Supabase OAuth URL directly
-      const redirectTo = (options && options.redirectTo) || window.location.href;
-      const params = new URLSearchParams({
-        provider: provider,
-        redirect_to: redirectTo,
-        scopes: 'email profile'
-      });
-      const oauthUrl = `${BASE}/authorize?${params.toString()}`;
-      // Navigate to Google via Supabase
-      window.location.href = oauthUrl;
-      return { data: {}, error: null };
-    },
-
-    async signOut(){
-      const token = _session && _session.access_token;
-      _session = null;
-      clearSession();
-      notify('SIGNED_OUT', null);
-      if(token){
-        try {
-          await fetch(`${BASE}/logout`, {
-            method: 'POST',
-            headers: { ...HEADERS, 'Authorization': `Bearer ${token}` }
-          });
-        } catch(e){}
+        await this.sync();
+        await new Promise(resolve => setTimeout(resolve, this.syncInterval));
+      } catch (err) {
+        console.error('Sync error:', err);
+        await new Promise(resolve => setTimeout(resolve, this.syncInterval));
       }
-      return { error: null };
-    }
-  };
-
-  // Auto-detect session on load (hash from OAuth redirect)
-  (async ()=>{
-    const hashSession = parseHashSession();
-    if(hashSession){ _session = hashSession; saveSession(hashSession); setTimeout(()=>notify('SIGNED_IN', hashSession), 0); }
-    else {
-      const stored = loadSession();
-      if(stored){ _session = stored; setTimeout(()=>notify('INITIAL_SESSION', stored), 0); }
-      else { setTimeout(()=>notify('INITIAL_SESSION', null), 0); }
-    }
-  })();
-
-  return { auth };
-})();
-
-console.log('✓ Supabase auth client ready (no CDN)');
-/*
-  Supabase SQL schema for JPVS enforcement portal
-  ------------------------------------------------
-  CREATE TABLE users (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    email text UNIQUE NOT NULL,
-    full_name text,
-    role text NOT NULL DEFAULT 'user',
-    created_at timestamptz DEFAULT now()
-  );
-
-  CREATE TABLE travel_logs (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid REFERENCES users(id),
-    date date,
-    depart_time time,
-    return_time time,
-    driver text,
-    destination text,
-    approver text,
-    odometer_start numeric,
-    odometer_end numeric,
-    distance_km numeric,
-    fuel_liters numeric,
-    cost_rm numeric,
-    receipt_no text,
-    note text,
-    created_at timestamptz DEFAULT now()
-  );
-
-  CREATE TABLE enforcement_cases (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid REFERENCES users(id),
-    incident_year int,
-    incident_month text,
-    officer text,
-    category text,
-    police_report_no text,
-    incident_date date,
-    incident_time time,
-    location text,
-    offence text,
-    statute text,
-    case_no text,
-    seizure_type text,
-    cattle_count int DEFAULT 0,
-    buffalo_count int DEFAULT 0,
-    goat_count int DEFAULT 0,
-    sheep_count int DEFAULT 0,
-    pig_count int DEFAULT 0,
-    chicken_count int DEFAULT 0,
-    total_value_rm numeric DEFAULT 0,
-    disposition text,
-    notes text,
-    created_at timestamptz DEFAULT now()
-  );
-
-  CREATE TABLE announcements (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    message text NOT NULL,
-    created_at timestamptz DEFAULT now()
-  );
-*/
-
-// ========================================
-// BASEROW REALTIME INTEGRATION
-// ========================================
-const BASEROW_URL = 'https://api.baserow.io/api/';
-const BASEROW_API_TOKEN = '<YOUR_BASEROW_API_TOKEN>';
-const BASEROW_DATABASE_ID = '<YOUR_DATABASE_ID>';
-const BASEROW_TABLE_ID = '<YOUR_TABLE_ID>';
-const isBaserowConfigured = !BASEROW_API_TOKEN.includes('<YOUR_') && !BASEROW_DATABASE_ID.includes('<YOUR_');
-
-class BaserowClient {
-  constructor(baseURL, apiToken) {
-    this.baseURL = baseURL;
-    this.apiToken = apiToken;
-    this.headers = {
-      'Authorization': `Token ${apiToken}`,
-      'Content-Type': 'application/json'
-    };
-  }
-
-  async getTableData(tableId, pageSize = 200) {
-    try {
-      const response = await fetch(`${this.baseURL}database/rows/table/${tableId}/?size=${pageSize}`, {
-        method: 'GET',
-        headers: this.headers
-      });
-      if (!response.ok) throw new Error(`Baserow API error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Baserow getTableData error:', error);
-      return null;
     }
   }
 
-  async createRow(tableId, data) {
+  // Perform single sync
+  async sync() {
     try {
-      const response = await fetch(`${this.baseURL}database/rows/table/${tableId}/`, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error(`Baserow API error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Baserow createRow error:', error);
-      return null;
+      const data = await this.sheets.getData();
+      
+      // Check if data changed
+      if (JSON.stringify(data) !== JSON.stringify(this.lastSyncData)) {
+        this.lastSyncData = data;
+        
+        // Trigger all callbacks
+        this.syncCallbacks.forEach(callback => {
+          try {
+            callback(data);
+          } catch (err) {
+            console.error('Callback error:', err);
+          }
+        });
+
+        // Show realtime indicator
+        this.showSyncIndicator();
+      }
+    } catch (err) {
+      console.error('Sync error:', err);
     }
   }
 
-  async updateRow(tableId, rowId, data) {
-    try {
-      const response = await fetch(`${this.baseURL}database/rows/table/${tableId}/${rowId}/`, {
-        method: 'PATCH',
-        headers: this.headers,
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error(`Baserow API error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Baserow updateRow error:', error);
-      return null;
+  // Show visual indicator that sync occurred
+  showSyncIndicator() {
+    const indicator = document.getElementById('realtimeIndicator');
+    if (indicator) {
+      indicator.classList.add('pulse');
+      setTimeout(() => indicator.classList.remove('pulse'), 1000);
     }
   }
+}
 
-  async deleteRow(tableId, rowId) {
+// ========== ENFORCEMENT DATA SYNC ==========
+class EnforcementDataSync {
+  constructor(sheetsService) {
+    this.sheets = sheetsService;
+  }
+
+  // Format timecard entry for Google Sheets
+  formatEntry(entry) {
+    const now = new Date();
+    return [
+      now.toLocaleDateString('ms-MY'),
+      entry.checkIn || '',
+      entry.checkOut || '',
+      entry.location || '',
+      entry.status || 'Active',
+      entry.notes || '',
+      entry.officer || 'System',
+      new Date().toISOString()
+    ];
+  }
+
+  // Send timecard data to Google Sheets
+  async sendTimecard(entry) {
     try {
-      const response = await fetch(`${this.baseURL}database/rows/table/${tableId}/${rowId}/`, {
-        method: 'DELETE',
-        headers: this.headers
-      });
-      return response.ok;
-    } catch (error) {
-      console.error('Baserow deleteRow error:', error);
+      const values = [this.formatEntry(entry)];
+      await this.sheets.appendData(values);
+      console.log('✓ Timecard synced to Google Sheets');
+      return true;
+    } catch (err) {
+      console.error('Error syncing timecard:', err);
       return false;
     }
   }
 
-  async getDatabases() {
+  // Send enforcement action to Google Sheets
+  async sendEnforcement(action) {
     try {
-      const response = await fetch(`${this.baseURL}databases/`, {
-        method: 'GET',
-        headers: this.headers
-      });
-      if (!response.ok) throw new Error(`Baserow API error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Baserow getDatabases error:', error);
-      return null;
-    }
-  }
-
-  async getTables(databaseId) {
-    try {
-      const response = await fetch(`${this.baseURL}database/tables/?database_id=${databaseId}`, {
-        method: 'GET',
-        headers: this.headers
-      });
-      if (!response.ok) throw new Error(`Baserow API error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Baserow getTables error:', error);
-      return null;
-    }
-  }
-
-  setupRealtimeListener(tableId, callback) {
-    // Baserow WebSocket realtime API setup
-    const ws = new WebSocket(`wss://api.baserow.io/ws/database/rows/table/${tableId}/`);
-    
-    ws.onopen = () => {
-      console.log(`Baserow realtime listener connected to table ${tableId}`);
-      ws.send(JSON.stringify({
-        type: 'auth',
-        token: this.apiToken
-      }));
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === 'row_update' || message.type === 'row_create' || message.type === 'row_delete') {
-        if (callback) callback(message);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('Baserow WebSocket error:', error);
-    };
-
-    ws.onclose = () => {
-      console.log('Baserow realtime listener disconnected. Retrying in 5s...');
-      setTimeout(() => this.setupRealtimeListener(tableId, callback), 5000);
-    };
-
-    return ws;
-  }
-}
-
-const baserow = isBaserowConfigured ? new BaserowClient(BASEROW_URL, BASEROW_API_TOKEN) : null;
-let baserowData = [];
-let baserowWebSocket = null;
-
-const FUEL_RATE = 2.05;
-const months = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
-
-
-let currentLang = 'ms';
-let isLoggedIn = false;
-let currentUser = null;
-let travelData = [];
-let enfData = [];
-let uploadedFiles = {minyak:[],odo:[],kes:[]};
-let announcement = 'Selamat datang ke Portal Sistem Pengurusan Data. Sila kemaskini rekod anda. ';
-
-const i18n = {
-  ms:{
-    'nav.main':'UTAMA','nav.dashboard':'Dashboard','nav.records':'REKOD',
-    'nav.wfb':'Kad Waktu (WFB)','nav.travel':'Log Perjalanan',
-    'nav.enforcement':'Data Penguatkuasa','nav.data':'DATA & EKSPORT',
-    'nav.admin':'Super Admin',
-    'greeting.pagi':'Selamat Pagi','greeting.tengah':'Selamat Tengah Hari',
-    'greeting.petang':'Selamat Petang','greeting.malam':'Selamat Malam'
-  },
-  en:{
-    'nav.main':'MAIN','nav.dashboard':'Dashboard','nav.records':'RECORDS',
-    'nav.wfb':'Time Card (WFB)','nav.travel':'Travel Log',
-    'nav.enforcement':'Enforcement Data','nav.data':'DATA & EXPORT',
-    'nav.admin':'Super Admin',
-    'greeting.pagi':'Good Morning','greeting.tengah':'Good Afternoon',
-    'greeting.petang':'Good Evening','greeting.malam':'Good Night'
-  }
-};
-
-function t(key){return (i18n[currentLang]||{})[key]||key;}
-
-function playSound(type){
-  try {
-    if(!window.AudioContext && !window.webkitAudioContext) return;
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtx();
-    const gain = ctx.createGain();
-    gain.gain.value = 0.12;
-    gain.connect(ctx.destination);
-    const now = ctx.currentTime;
-    if(type==='login'){
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type='triangle'; osc1.frequency.value=880;
-      osc2.type='sine'; osc2.frequency.value=660;
-      osc1.connect(gain); osc2.connect(gain);
-      osc1.start(now); osc2.start(now);
-      osc1.stop(now+0.18); osc2.stop(now+0.18);
-    } else if(type==='click'){
-      const osc = ctx.createOscillator();
-      osc.type='square'; osc.frequency.value=520;
-      osc.connect(gain);
-      osc.start(now); osc.stop(now+0.08);
-    } else if(type==='whoosh'){
-      const buffer = ctx.createBuffer(1, ctx.sampleRate*0.2, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for(let i=0;i<data.length;i++){data[i]=Math.random()*2-1;data[i]*=(1 - i/data.length);}
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.value = 0.08;
-      noise.connect(noiseGain).connect(ctx.destination);
-      noise.start(now);
-      noise.stop(now+0.18);
-    }
-  } catch(e) { /* audio not available, ignore */ }
-}
-
-function getInitials(name){
-  return (name||'')[0] ? (name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()) : 'JP';
-}
-
-// ---- Must be defined early — used by handleSupabaseAuth and doLogin ----
-function showLoginError(msg){
-  const loginFooter = document.querySelector('.login-footer');
-  if(loginFooter){
-    loginFooter.innerHTML = `<span style="color:var(--danger);font-weight:700;">⚠ ${msg}</span>`;
-  }
-  console.error('[Login Error]', msg);
-}
-
-function resetLoginButton(){
-  const btn = document.querySelector('.btn-google');
-  if(!btn) return;
-  btn.disabled = false;
-  btn.style.opacity = '';
-  btn.style.cursor = '';
-  btn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24">
-    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-  </svg> Log Masuk dengan Google`;
-}
-// -----------------------------------------------------------------------
-
-async function handleSupabaseAuth(){
-  // supabase is always available (no CDN dependency)
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if(error) console.warn('getSession:', error.message);
-    const session = data?.session;
-    if(session && session.user && !isLoggedIn){
-      buildCurrentUser(session.user);
-      doLoginSuccess();
-    }
-  } catch(e){ console.error('handleSupabaseAuth error:', e); }
-}
-
-function buildCurrentUser(user, dbRole){
-  // dbRole comes from the users table in Supabase (fetched after login)
-  // Falls back to 'user' if not found
-  currentUser = {
-    name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'JPVS User',
-    email: user.email || '',
-    role: dbRole || 'user',
-    initials: getInitials(user.user_metadata?.full_name || user.user_metadata?.name || user.email),
-    avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-    id: user.id || ''
-  };
-}
-
-// Fetch role from profiles table — retries once if first attempt returns empty
-async function fetchUserRole(userId, accessToken){
-  for(let attempt = 0; attempt < 3; attempt++){
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=role`,
-        {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-      if(!res.ok){
-        console.warn('fetchUserRole HTTP', res.status, await res.text());
-        await new Promise(r=>setTimeout(r, 500));
-        continue;
-      }
-      const rows = await res.json();
-      if(rows && rows[0] && rows[0].role){
-        console.log('✓ Role from DB:', rows[0].role);
-        return rows[0].role;
-      }
-      // Row not yet created — wait and retry
-      await new Promise(r=>setTimeout(r, 600));
-    } catch(e){
-      console.warn('fetchUserRole error:', e);
-      await new Promise(r=>setTimeout(r, 500));
-    }
-  }
-  console.warn('fetchUserRole: could not get role after 3 attempts');
-  return null;
-}
-
-// Upsert profile — only sets non-role fields so existing role is preserved
-async function upsertUser(user, accessToken){
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify({
-        id: user.id,
-        email: user.email,
-        full_name: user.user_metadata?.full_name || user.user_metadata?.name || ''
-        // role intentionally omitted — DB default or existing value is kept
-      })
-    });
-    if(!res.ok) console.warn('upsertUser HTTP', res.status, await res.text());
-    // Sync profile ke Google Sheets
-    syncToGS('upsert_profile', {
-      id       : user.id,
-      email    : user.email,
-      full_name: user.user_metadata?.full_name || user.user_metadata?.name || ''
-    });
-  } catch(e){ console.warn('upsertUser error:', e); }
-}
-
-async function doLogin(){
-  try { playSound('click'); } catch(e){}
-
-  // Block if opened as file:// — OAuth requires http/https
-  if(window.location.protocol === 'file:'){
-    showLoginError('Sila buka melalui pelayan web (http://localhost) bukan terus dari folder fail.');
-    return;
-  }
-
-  const btn = document.querySelector('.btn-google');
-  if(btn){
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btn.innerHTML = '⏳ Menghubungi Google...';
-  }
-
-  // Exact GitHub Pages URL — must match Supabase dashboard "Redirect URLs"
-  const redirectTo = 'https://fde-x.github.io/Firfleet/';
-
-  try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectTo,
-        queryParams: { access_type: 'offline', prompt: 'select_account' }
-      }
-    });
-    if(error){
-      console.error('signInWithOAuth error:', error);
-      showLoginError('Log masuk Google gagal: ' + error.message);
-      resetLoginButton();
-    }
-    // On success browser navigates away to Google — nothing more runs here
-  } catch(e){
-    console.error('doLogin exception:', e);
-    showLoginError('Ralat tidak dijangka: ' + e.message);
-    resetLoginButton();
-  }
-}
-
-
-function doLoginSuccess(){
-  if(!currentUser || !currentUser.email){
-    console.warn('doLoginSuccess: no valid currentUser, skipping');
-    return;
-  }
-  try { playSound('login'); } catch(e){}
-
-  const loginScreen = document.getElementById('loginScreen');
-  loginScreen.style.transition = 'opacity 0.4s';
-  loginScreen.style.opacity = '0';
-  setTimeout(()=>{
-    loginScreen.style.display = 'none';
-    document.getElementById('appShell').style.display = 'block';
-    isLoggedIn = true;
-
-    const avatarEl = document.getElementById('userAvatar');
-    if(avatarEl){
-      if(currentUser.avatar){
-        avatarEl.innerHTML = `<img src="${currentUser.avatar}" alt="${currentUser.initials}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-      } else {
-        avatarEl.textContent = currentUser.initials;
-      }
-    }
-    const nameEl = document.getElementById('userName');
-    if(nameEl) nameEl.textContent = currentUser.name.split(' ')[0];
-    const roleEl = document.getElementById('userRoleDisplay');
-    if(roleEl) roleEl.textContent = currentUser.role === 'superadmin' ? 'Super Admin' : 'Pegawai Penguatkuasa';
-    const adminNav = document.getElementById('adminNavItem');
-    if(adminNav){
-      adminNav.style.display = currentUser.role === 'superadmin' ? 'flex' : 'none';
-    }
-
-    try { renderWFB(); } catch(e){ console.warn('renderWFB',e); }
-    try { renderAdminPanel(); } catch(e){ console.warn('renderAdminPanel',e); }
-    try { renderCharts(); } catch(e){ console.warn('renderCharts',e); }
-    try { updateAnnDisplay(); } catch(e){ console.warn('updateAnnDisplay',e); }
-    try { updateStats(); } catch(e){ console.warn('updateStats',e); }
-    try { triggerReveal(); } catch(e){ console.warn('triggerReveal',e); }
-    try { loadUserData(); } catch(e){ console.warn('loadUserData',e); }
-  }, 400);
-}
-
-
-async function signOut(){
-  try { if(supabase) await supabase.auth.signOut(); } catch(e){ console.warn('signOut:',e); }
-  isLoggedIn = false;
-  currentUser = null;
-  document.getElementById('appShell').style.display = 'none';
-  const loginScreen = document.getElementById('loginScreen');
-  loginScreen.style.display = 'flex';
-  loginScreen.style.opacity = '1';
-  const loginFooter = document.querySelector('.login-footer');
-  if(loginFooter) loginFooter.innerHTML = 'Sistem ini dilindungi. Akses terhad kepada kakitangan yang diberi kuasa sahaja.<br>Jabatan Perkhidmatan Veterinar &amp; Penyembelihan &copy; 2025';
-  resetLoginButton();
-  showToast('Log keluar berjaya');
-}
-
-function initParticles(){
-  const c=document.getElementById('particles');
-  const colors=['#6C63FF','#FF6584','#43E8D8','#FFD700','#A78BFA'];
-  for(let i=0;i<40;i++){
-    const p=document.createElement('div');p.className='particle';
-    const size=Math.random()*4+1;
-    p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*15+8}s;animation-delay:${Math.random()*10}s;`;
-    c.appendChild(p);
-  }
-}
-
-function updateClock(){
-  const now=new Date();
-  const h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
-  const h12=h%12||12,ampm=h<12?'PG':h<18?'PTG':'MLM';
-  const timeStr=`${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  ['navClock','dashClock'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=timeStr;});
-  ['navPeriod','dashPeriod'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ampm;});
-  const dateEl=document.getElementById('dashDate');
-  if(dateEl){const days=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];dateEl.textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;}
-  const greet=document.getElementById('greetingText');
-  if(greet && currentUser){let g=t(h<12?'greeting.pagi':h<13?'greeting.tengah':h<18?'greeting.petang':'greeting.malam');greet.textContent=`${g}, ${currentUser.name.split(' ')[0]}`;}
-  const wfbMonth=document.getElementById('wfbMonth');
-  if(wfbMonth)wfbMonth.textContent=`${months[now.getMonth()]} ${now.getFullYear()}`;
-}
-
-
-function showSection(id,el){
-  if (!isLoggedIn) {
-    showToast('Sila log masuk untuk akses sistem.');
-    document.getElementById('appShell').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('loginScreen').style.opacity = '1';
-    return;
-  }
-  playSound('whoosh');
-  const overlay=document.getElementById('transOverlay');
-  overlay.classList.add('animating');
-  setTimeout(()=>overlay.classList.remove('animating'),700);
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-  if(el)el.classList.add('active');
-  else{document.querySelectorAll('.nav-item').forEach(n=>{if(n.onclick&&n.onclick.toString().includes("'"+id+"'"))n.classList.add('active');});}
-  triggerReveal();
-  if(window.innerWidth<768){
-    document.getElementById('sidebar').classList.remove('open');
-    const bd = document.getElementById('sidebarBackdrop');
-    if(bd) bd.classList.remove('visible');
-  }
-}
-
-
-function toggleSidebar(){
-  if (!isLoggedIn) return;
-  const sidebar = document.getElementById('sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-  const isOpen = sidebar.classList.toggle('open');
-  if(backdrop){ backdrop.classList.toggle('visible', isOpen); }
-}
-
-function toggleLang(){
-  currentLang=currentLang==='ms'?'en':'ms';
-  document.getElementById('langBtn').textContent=currentLang==='ms'?'🌐 EN':'🌐 MS';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key=el.getAttribute('data-i18n');const val=t(key);
-    if(val!==key)el.textContent=val;
-  });
-}
-
-function triggerReveal(){
-  setTimeout(()=>{
-    document.querySelectorAll('.reveal').forEach(el=>{
-      const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
-      obs.observe(el);
-    });
-  },50);
-}
-
-function renderWFB(){
-  const now=new Date();
-  const bulanInput=document.getElementById('wfbBulan');
-  let year=now.getFullYear(),month=now.getMonth();
-  if(bulanInput&&bulanInput.value){const parts=bulanInput.value.split('-');year=parseInt(parts[0]);month=parseInt(parts[1])-1;}
-  const daysInMonth=new Date(year,month+1,0).getDate();
-  const makeHalf=(from,to,label)=>{
-    let rows='';
-    for(let d=from;d<=Math.min(to,daysInMonth);d++){
-      const date=new Date(year,month,d);
-      const dayNames=['Ahad','Isn','Sel','Rab','Kha','Jum','Sab'];
-      const isWeekend=date.getDay()===0||date.getDay()===6;
-      rows+=`<tr style="${isWeekend?'opacity:0.55;':''}">
-        <td style="font-weight:600;white-space:nowrap;">${d} ${dayNames[date.getDay()]}</td>
-        <td><input type="time" class="wfb-masuk" data-day="${d}" onchange="checkWFBTime(this,'masuk');autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td><input type="time" class="wfb-keluar" data-day="${d}" onchange="checkWFBTime(this,'keluar');autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td><input type="time" data-day="${d}" data-field="masuk2" onchange="autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td><input type="time" data-day="${d}" data-field="keluar2" onchange="autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td><input type="text" data-day="${d}" data-field="kenyataan" placeholder="" onchange="autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td><input type="text" data-day="${d}" data-field="tandatangan" placeholder="T/T" onchange="autoSaveWFBRow(${d},${year},${month+1})"></td>
-        <td style="width:20px;"><span class="wfb-save-indicator" id="wfb-saved-${d}">✓</span></td>
-      </tr>`;
-    }
-    return `<div class="timecard-half"><div class="timecard-header">${label}</div><div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="tc-table"><thead><tr><th>TARIKH</th><th>MASUK</th><th>KELUAR</th><th>MASUK 2</th><th>KELUAR 2</th><th>KENYATAAN</th><th>T/T</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-  };
-  document.getElementById('wfbGrid').innerHTML=makeHalf(1,15,'BAHAGIAN A: 1 – 15 '+months[month]+' '+year)+makeHalf(16,31,'BAHAGIAN B: 16 – '+daysInMonth+' '+months[month]+' '+year);
-  // Load existing WFB data from Supabase
-  loadWFBData(year, month+1);
-}
-
-// Debounce map for WFB autosave
-const _wfbSaveTimers = {};
-
-function autoSaveWFBRow(day, year, bulan){
-  // Debounce: wait 800ms after last change before saving
-  clearTimeout(_wfbSaveTimers[day]);
-  _wfbSaveTimers[day] = setTimeout(()=>{ saveWFBRow(day, year, bulan); }, 800);
-}
-
-// Called when header fields (Nama, Kem, Bahagian) change — re-save all filled rows
-function triggerWFBHeaderSave(){
-  const bulanInput = document.getElementById('wfbBulan');
-  if(!bulanInput || !bulanInput.value) return;
-  const parts = bulanInput.value.split('-');
-  const year  = parseInt(parts[0]);
-  const bulan = parseInt(parts[1]);
-  // Find all days that have at least one time entry and re-save them
-  document.querySelectorAll('.wfb-masuk').forEach(el => {
-    if(el.value){
-      const day = parseInt(el.getAttribute('data-day'));
-      autoSaveWFBRow(day, year, bulan);
-    }
-  });
-}
-
-async function saveWFBRow(day, year, bulan){
-  if(!currentUser || !currentUser.id) return;
-  // Collect all inputs for this day
-  const getVal = (selector) => {
-    const el = document.querySelector(`${selector}[data-day="${day}"]`);
-    return el ? (el.value || null) : null;
-  };
-  const masuk1  = getVal('.wfb-masuk');
-  const keluar1 = getVal('.wfb-keluar');
-  const masuk2  = getVal('[data-field="masuk2"]');
-  const keluar2 = getVal('[data-field="keluar2"]');
-  const kenyataan   = getVal('[data-field="kenyataan"]');
-  const tandatangan = getVal('[data-field="tandatangan"]');
-  const nama    = document.getElementById('wfbNama')?.value || '';
-  const kemJab  = document.getElementById('wfbKem')?.value || '';
-  const bahagian= document.getElementById('wfbBahagian')?.value || '';
-
-  const payload = {
-    user_id: currentUser.id,
-    nama, kem_jab: kemJab, bahagian,
-    tahun: year, bulan, hari: day,
-    masuk1, keluar1, masuk2, keluar2,
-    kenyataan, tandatangan
-  };
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/wfb_timecards`, {
-      method: 'POST',
-      headers: { ...sbHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify(payload)
-    });
-    if(res.ok || res.status === 204){
-      // Flash saved indicator
-      const ind = document.getElementById(`wfb-saved-${day}`);
-      if(ind){ ind.style.opacity='1'; setTimeout(()=>{ ind.style.opacity='0'; }, 1500); }
-      // Sync ke Google Sheets (background)
-      syncToGS('upsert_wfb', payload);
-    } else {
-      console.warn('saveWFBRow HTTP', res.status, await res.text());
-    }
-  } catch(e){ console.warn('saveWFBRow error:', e); }
-}
-
-async function loadWFBData(year, bulan){
-  if(!currentUser || !currentUser.id) return;
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/wfb_timecards?user_id=eq.${currentUser.id}&tahun=eq.${year}&bulan=eq.${bulan}&select=*`,
-      { headers: sbHeaders() }
-    );
-    if(!res.ok) return;
-    const rows = await res.json();
-    rows.forEach(r => {
-      const d = r.hari;
-      const setVal = (selector, val) => {
-        const el = document.querySelector(`${selector}[data-day="${d}"]`);
-        if(el && val) el.value = val;
+      const entry = {
+        checkIn: action.time || new Date().toLocaleTimeString(),
+        location: action.location || 'N/A',
+        status: action.type || 'Enforcement',
+        notes: action.details || '',
+        officer: action.officer || 'System'
       };
-      setVal('.wfb-masuk',  r.masuk1);
-      setVal('.wfb-keluar', r.keluar1);
-      setVal('[data-field="masuk2"]',  r.masuk2);
-      setVal('[data-field="keluar2"]', r.keluar2);
-      setVal('[data-field="kenyataan"]',   r.kenyataan);
-      setVal('[data-field="tandatangan"]', r.tandatangan);
-      // Re-apply time highlighting
-      const masukEl = document.querySelector(`.wfb-masuk[data-day="${d}"]`);
-      if(masukEl && masukEl.value) checkWFBTime(masukEl, 'masuk');
-      const keluarEl = document.querySelector(`.wfb-keluar[data-day="${d}"]`);
-      if(keluarEl && keluarEl.value) checkWFBTime(keluarEl, 'keluar');
-    });
-    // Fill header fields from first row
-    if(rows.length > 0){
-      const r = rows[0];
-      if(r.nama)     { const el=document.getElementById('wfbNama');    if(el&&!el.value) el.value=r.nama; }
-      if(r.kem_jab)  { const el=document.getElementById('wfbKem');     if(el&&!el.value) el.value=r.kem_jab; }
-      if(r.bahagian) { const el=document.getElementById('wfbBahagian');if(el&&!el.value) el.value=r.bahagian; }
+      return await this.sendTimecard(entry);
+    } catch (err) {
+      console.error('Error syncing enforcement:', err);
+      return false;
     }
-  } catch(e){ console.warn('loadWFBData error:', e); }
-}
-
-function checkWFBTime(input,type){
-  if(!input.value)return;
-  const[h,m]=input.value.split(':').map(Number);
-  input.classList.remove('highlight-late','highlight-ot');
-  const row=input.closest('tr');row.classList.remove('late','ot');
-  if(type==='masuk'){
-    if(h*60+m>9*60){input.classList.add('highlight-late');row.classList.add('late');}
-    if(h*60+m<7*60){input.classList.add('highlight-ot');row.classList.add('ot');}
-  }else if(type==='keluar'){
-    if(h*60+m>18*60){input.classList.add('highlight-ot');row.classList.add('ot');}
   }
-}
 
-function calcOdo(){
-  const a=parseFloat(document.getElementById('tl-odomula').value)||0;
-  const b=parseFloat(document.getElementById('tl-odoakhir').value)||0;
-  const dist=Math.max(0,b-a);
-  document.getElementById('tl-jarak').value=dist;
-  document.getElementById('tl-kos').value=(dist*FUEL_RATE/10).toFixed(2);
-}
-function calcFuelCost(){
-  const lit=parseFloat(document.getElementById('tl-liter').value)||0;
-  document.getElementById('tl-kos').value=(lit*FUEL_RATE).toFixed(2);
-}
-
-function openTravelModal(){document.getElementById('travelModal').classList.add('open');}
-function closeModal(id){
-  playSound('click');
-  document.getElementById(id).classList.remove('open');
-}
-
-async function saveTravelLog(){
-  const rec={
-    tarikh:document.getElementById('tl-tarikh').value,
-    masapergi:document.getElementById('tl-masapergi').value,
-    masabalik:document.getElementById('tl-masabalik').value,
-    pemandu:document.getElementById('tl-pemandu').value,
-    tujuan:document.getElementById('tl-tujuan').value,
-    pelulus:document.getElementById('tl-pelulus').value,
-    pengguna:document.getElementById('tl-pengguna').value||(currentUser?currentUser.name:''),
-    odomula:parseFloat(document.getElementById('tl-odomula').value)||0,
-    odoakhir:parseFloat(document.getElementById('tl-odoakhir').value)||0,
-    jarak:parseFloat(document.getElementById('tl-jarak').value)||0,
-    liter:parseFloat(document.getElementById('tl-liter').value)||0,
-    kos:parseFloat(document.getElementById('tl-kos').value)||0,
-    resit:document.getElementById('tl-resit').value,
-    nota:document.getElementById('tl-nota').value
-  };
-  if(!rec.tarikh){ showToast('Sila isi tarikh'); return; }
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/travel_logs`, {
-      method: 'POST',
-      headers: sbHeaders(),
-      body: JSON.stringify(travelToDb(rec))
-    });
-    if(!res.ok){ const err=await res.text(); console.error('saveTravelLog:', err); showToast('Gagal simpan: '+err); return; }
-    const [saved] = await res.json();
-    rec._id = saved.id;
-    rec.jarak = parseFloat(saved.jarak_km) || rec.jarak;
-    travelData.unshift(rec);
-    renderTravelTable(); updateStats(); closeModal('travelModal');
-    showToast('Log perjalanan disimpan ✓');
-    // Sync ke Google Sheets (background)
-    syncToGS('insert_travel', { ...travelToDb(rec), id: rec._id });
-  } catch(e){ console.error('saveTravelLog error:', e); showToast('Ralat simpan data'); }
-}
-
-function renderTravelTable(){
-  const tbody=document.getElementById('travelBody');
-  let totalKM=0,totalKos=0,totalL=0,totalTrips=travelData.length;
-  tbody.innerHTML=travelData.map((r,i)=>{
-    totalKM+=r.jarak;totalKos+=r.kos;totalL+=r.liter;
-    return `<tr><td>${i+1}</td><td>${r.tarikh||'-'}</td><td>${r.masapergi||'-'}</td><td>${r.masabalik||'-'}</td><td>${r.pemandu||'-'}</td><td style="max-width:150px;white-space:normal;">${r.tujuan||'-'}</td><td>${r.pelulus||'-'}</td><td>${r.odomula}</td><td>${r.odoakhir}</td><td><span class="badge badge-blue">${r.jarak} km</span></td><td>${r.liter} L</td><td><span class="badge badge-green">RM ${r.kos.toFixed(2)}</span></td><td>${r.resit||'-'}</td><td>${r.nota||'-'}</td><td><button class="btn btn-danger btn-sm" onclick="deleteTravelRow(${i})">Padam</button></td></tr>`;
-  }).join('');
-  document.getElementById('tlogFtKM').textContent=totalKM;
-  document.getElementById('tlogFtL').textContent=totalL.toFixed(2);
-  document.getElementById('tlogFtKos').textContent='RM '+totalKos.toFixed(2);
-  document.getElementById('tlogTotalKM').textContent=totalKM;
-  document.getElementById('tlogTotalKos').textContent='RM '+totalKos.toFixed(2);
-  document.getElementById('tlogTotalTrips').textContent=totalTrips;
-  document.getElementById('tlogTotalLiter').textContent=totalL.toFixed(2)+' L';
-}
-async function deleteTravelRow(i){
-  const rec = travelData[i];
-  if(rec && rec._id){
+  // Sync all local data to Google Sheets
+  async syncAllData(dataArray) {
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/travel_logs?id=eq.${rec._id}`, {
-        method: 'DELETE', headers: sbHeaders()
-      });
-      syncToGS('delete_travel', { id: rec._id });
-    } catch(e){ console.warn('deleteTravelRow:', e); }
+      const values = dataArray.map(entry => this.formatEntry(entry));
+      if (values.length > 0) {
+        await this.sheets.appendData(values);
+        console.log('✓', values.length, 'entries synced to Google Sheets');
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error batch syncing:', err);
+      return false;
+    }
   }
-  travelData.splice(i,1); renderTravelTable(); updateStats();
 }
 
-function calcEnfTotal(){
-  const ids=['enf-rmek','enf-rmkdr','enf-rmpengangkut','enf-rmlain'];
-  const total=ids.reduce((s,id)=>s+(parseFloat(document.getElementById(id).value)||0),0);
-  document.getElementById('enf-rmnilai').value=total.toFixed(2);
-}
+// ========== INITIALIZATION ==========
+let googleSheets, realtimeSync, enforcementSync;
 
-function openEnfModal(){
-  document.getElementById('enfModal').classList.add('open');
-  ['enf-lembu','enf-kerbau','enf-kambing','enf-bebiri','enf-babi','enf-ayam','enf-klembu','enf-kkerbau','enf-kkambing','enf-kbabi','enf-kbabisb','enf-kayam','enf-pitik','enf-payam','enf-pbabi','enf-tin','enf-anjing','enf-kucing','enf-arnab','enf-burung','enf-hamster','enf-jkdr','enf-jpengangkut','enf-rmek','enf-rmkdr','enf-rmpengangkut','enf-rmlain'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='0';});
-  document.getElementById('enf-rmnilai').value='0';
-}
+// Load Google API library
+function loadGoogleAPI() {
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
 
-async function saveEnfData(){
-  playSound('click');
-  const g=id=>document.getElementById(id).value||'';
-  const gn=id=>parseFloat(document.getElementById(id).value)||0;
-  const rec={tahun:g('enf-tahun'),bulan:g('enf-bulan'),penguatkuasa:g('enf-penguatkuasa'),kategori:g('enf-kategori'),nopolis:g('enf-nopolis'),tarikh:g('enf-tarikh'),masa:g('enf-masa'),lokasi:g('enf-lokasi'),kesalahan:g('enf-kesalahan'),undang:g('enf-undang'),noip:g('enf-noip'),jenis:g('enf-jenis'),lembu:gn('enf-lembu'),kerbau:gn('enf-kerbau'),kambing:gn('enf-kambing'),bebiri:gn('enf-bebiri'),babi:gn('enf-babi'),ayam:gn('enf-ayam'),klembu:gn('enf-klembu'),kkerbau:gn('enf-kkerbau'),kkambing:gn('enf-kkambing'),kbabi:gn('enf-kbabi'),kbabisb:gn('enf-kbabisb'),kayam:gn('enf-kayam'),pitik:gn('enf-pitik'),payam:gn('enf-payam'),pbabi:gn('enf-pbabi'),tin:gn('enf-tin'),anjing:gn('enf-anjing'),kucing:gn('enf-kucing'),arnab:gn('enf-arnab'),burung:gn('enf-burung'),hamster:gn('enf-hamster'),lain:g('enf-lain'),jkdr:gn('enf-jkdr'),jpengangkut:gn('enf-jpengangkut'),rmek:gn('enf-rmek'),rmkdr:gn('enf-rmkdr'),rmpengangkut:gn('enf-rmpengangkut'),rmlain:gn('enf-rmlain'),rmnilai:gn('enf-rmnilai'),serahan:g('enf-serahan'),catatan:g('enf-catatan')};
-  if(!rec.tarikh){ showToast('Sila isi tarikh kes'); return; }
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/enforcement_cases`, {
-      method: 'POST',
-      headers: sbHeaders(),
-      body: JSON.stringify(enfToDb(rec))
+  const gapiScript = document.createElement('script');
+  gapiScript.src = 'https://apis.google.com/js/api.js';
+  gapiScript.onload = () => {
+    gapi.load('client', async () => {
+      googleSheets = new GoogleSheetsService(GOOGLE_CONFIG);
+      await googleSheets.init();
+      console.log('✓ Google Sheets API ready');
     });
-    if(!res.ok){ const err=await res.text(); console.error('saveEnfData:', err); showToast('Gagal simpan: '+err); return; }
-    const [saved] = await res.json();
-    rec._id = saved.id;
-    rec.rmnilai = parseFloat(saved.rm_nilai_total) || rec.rmnilai;
-    enfData.unshift(rec);
-    const sel=document.getElementById('enfFilterBulan');
-    if(rec.bulan&&![...sel.options].find(o=>o.value===rec.bulan)){const o=document.createElement('option');o.value=rec.bulan;o.textContent=rec.bulan;sel.appendChild(o);}
-    renderEnfTable(enfData); updateStats(); closeModal('enfModal');
-    showToast('Data kes disimpan ✓');
-    // Sync ke Google Sheets (background)
-    syncToGS('insert_enforcement', { ...enfToDb(rec), id: rec._id });
-  } catch(e){ console.error('saveEnfData error:', e); showToast('Ralat simpan data'); }
-}
-
-function renderEnfTable(data){
-  const tbody=document.getElementById('enfBody');
-  const totals={lembu:0,kerbau:0,kambing:0,bebiri:0,babi:0,ayam:0,klembu:0,kkerbau:0,kkambing:0,kbabi:0,kbabisb:0,kayam:0,pitik:0,payam:0,pbabi:0,tin:0,anjing:0,kucing:0,arnab:0,burung:0,hamster:0,lain:0,jkdr:0,jpengangkut:0,rmek:0,rmkdr:0,rmpengangkut:0,rmlain:0,rmnilai:0};
-  tbody.innerHTML=data.map((r,i)=>{
-    Object.keys(totals).forEach(k=>{if(typeof r[k]==='number')totals[k]+=r[k];});
-    return `<tr><td>${i+1}</td><td>${r.tahun}</td><td>${r.bulan}</td><td>${r.penguatkuasa}</td><td><span class="badge badge-blue">${r.kategori}</span></td><td>${r.nopolis}</td><td>${r.tarikh}</td><td>${r.masa}</td><td style="max-width:120px;white-space:normal;">${r.lokasi}</td><td style="max-width:120px;white-space:normal;">${r.kesalahan}</td><td>${r.undang}</td><td>${r.noip}</td><td>${r.jenis}</td><td>${r.lembu}</td><td>${r.kerbau}</td><td>${r.kambing}</td><td>${r.bebiri}</td><td>${r.babi}</td><td>${r.ayam}</td><td>${r.klembu}</td><td>${r.kkerbau}</td><td>${r.kkambing}</td><td>${r.kbabi}</td><td>${r.kbabisb}</td><td>${r.kayam}</td><td>${r.pitik}</td><td>${r.payam}</td><td>${r.pbabi}</td><td>${r.tin}</td><td>${r.anjing}</td><td>${r.kucing}</td><td>${r.arnab}</td><td>${r.burung}</td><td>${r.hamster}</td><td>${r.lain}</td><td>${r.jkdr}</td><td>${r.jpengangkut}</td><td>RM${r.rmek.toFixed(2)}</td><td>RM${r.rmkdr.toFixed(2)}</td><td>RM${r.rmpengangkut.toFixed(2)}</td><td>RM${r.rmlain.toFixed(2)}</td><td><span class="badge badge-gold">RM${r.rmnilai.toFixed(2)}</span></td><td><span class="badge ${r.serahan==='Mahkamah'?'badge-red':r.serahan==='Dilepaskan'?'badge-green':'badge-blue'}">${r.serahan}</span></td><td>${r.catatan}</td><td><button class="btn btn-danger btn-sm" onclick="deleteEnfRow(${i})">Padam</button></td></tr>`;
-  }).join('');
-  const keys=['lembu','kerbau','kambing','bebiri','babi','ayam','klembu','kkerbau','kkambing','kbabi','kbabisb','kayam','pitik','payam','pbabi','tin','anjing','kucing','arnab','burung','hamster','lain','jkdr','jpengangkut'];
-  keys.forEach(k=>{const el=document.getElementById('e-'+k);if(el)el.textContent=totals[k];});
-  ['rmek','rmkdr','rmpengangkut','rmlain','rmnilai'].forEach(k=>{const el=document.getElementById('e-'+k);if(el)el.textContent='RM'+totals[k].toFixed(2);});
-}
-
-function filterEnf(){
-  const q=document.getElementById('enfSearch').value.toLowerCase();
-  const bulan=document.getElementById('enfFilterBulan').value;
-  const filtered=enfData.filter(r=>{
-    const match=!q||(r.penguatkuasa+r.lokasi+r.kesalahan+r.nopolis+r.kategori).toLowerCase().includes(q);
-    const bulanMatch=!bulan||r.bulan===bulan;
-    return match&&bulanMatch;
-  });
-  renderEnfTable(filtered);
-}
-async function deleteEnfRow(i){
-  const rec = enfData[i];
-  if(rec && rec._id){
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/enforcement_cases?id=eq.${rec._id}`, {
-        method: 'DELETE', headers: sbHeaders()
-      });
-      syncToGS('delete_enforcement', { id: rec._id });
-    } catch(e){ console.warn('deleteEnfRow:', e); }
-  }
-  enfData.splice(i,1); renderEnfTable(enfData); updateStats();
-}
-
-function updateStats(){
-  const totalKes=enfData.length;
-  const totalRampasan=enfData.reduce((s,r)=>s+r.rmnilai,0);
-  const totalTrips=travelData.length;
-  const totalKM=travelData.reduce((s,r)=>s+r.jarak,0);
-  document.getElementById('statCases').textContent=totalKes;
-  document.getElementById('statRampasan').textContent='RM '+totalRampasan.toFixed(0);
-  document.getElementById('statTrips').textContent=totalTrips;
-  document.getElementById('statKM').textContent=totalKM+' km';
-  document.getElementById('sumTotalKes').textContent=totalKes;
-  document.getElementById('sumNilaiRM').textContent='RM '+totalRampasan.toFixed(0);
-  document.getElementById('sumPerjalanan').textContent=totalTrips;
-  const allFiles=uploadedFiles.minyak.length+uploadedFiles.odo.length+uploadedFiles.kes.length;
-  document.getElementById('sumFail').textContent=allFiles;
-}
-
-function renderCharts(){
-  const chartTypes=[{label:'Lembu',v:Math.floor(Math.random()*20)+5,color:'#6C63FF'},{label:'Kerbau',v:Math.floor(Math.random()*10)+2,color:'#FF6584'},{label:'Kambing',v:Math.floor(Math.random()*15)+3,color:'#43E8D8'},{label:'Ayam',v:Math.floor(Math.random()*30)+10,color:'#FFD700'},{label:'Lain',v:Math.floor(Math.random()*8)+1,color:'#A78BFA'}];
-  const maxV=Math.max(...chartTypes.map(c=>c.v));
-  const makeChart=id=>{
-    const el=document.getElementById(id);if(!el)return;
-    el.innerHTML=chartTypes.map(c=>`<div class="chart-bar-wrap"><div class="chart-bar-val">${c.v}</div><div class="chart-bar" style="height:${(c.v/maxV)*140}px;background:${c.color};box-shadow:0 0 10px ${c.color}60;"></div><div class="chart-bar-label">${c.label}</div></div>`).join('');
   };
-  makeChart('dashChart');makeChart('summaryChart');
+  document.head.appendChild(gapiScript);
 }
 
-function updateAnnDisplay(){
-  const el=document.getElementById('annDisplay');if(el)el.textContent=announcement;
-  const annText=document.getElementById('annText');if(annText)annText.textContent='📢 '+announcement;
-  const currAnn=document.getElementById('currentAnn');if(currAnn)currAnn.textContent=announcement;
-}
-
-function saveAnnouncement(){
-  playSound('click');
-  const val=document.getElementById('newAnnText').value.trim();
-  if(val){announcement=val;updateAnnDisplay();document.getElementById('newAnnText').value='';showToast('Pengumuman disimpan');}
-}
-
-function renderAdminPanel(){
-  const users=[{name:'Ahmad Firdaus',email:'ahmad@jpvs.gov.my',role:'superadmin',initials:'AF'},{name:'Siti Norizan',email:'siti@jpvs.gov.my',role:'user',initials:'SN'},{name:'Mohd Hafiz',email:'hafiz@jpvs.gov.my',role:'user',initials:'MH'}];
-  const colors=['#6C63FF','#FF6584','#43E8D8','#FFD700'];
-  const makeUserRow=(u,i,canDelete)=>`<div class="user-row"><div class="user-avatar-sm" style="background:linear-gradient(135deg,${colors[i%colors.length]},${colors[(i+1)%colors.length]});">${u.initials}</div><div class="user-info"><div class="user-info-name">${u.name}</div><div class="user-info-email">${u.email}</div></div>${canDelete&&currentUser&&currentUser.role==='superadmin'?`<button class="btn btn-danger btn-sm" onclick="removeUser(${i})">Buang</button>`:''}</div>`;
-  const adminUsers=users.filter(u=>u.role==='superadmin');
-  const normalUsers=users.filter(u=>u.role==='user');
-  document.getElementById('userListAdmin').innerHTML=normalUsers.map((u,i)=>makeUserRow(u,i,true)).join('');
-  document.getElementById('superAdminList').innerHTML=adminUsers.map((u,i)=>makeUserRow(u,i,true)).join('');
-}
-
-// ========================================
-// BASEROW REALTIME DATA MANAGEMENT
-// ========================================
-async function initBaserowSync(){
-  if(!baserow){showToast('Baserow tidak dikonfig');return;}
-  try{
-    const data=await baserow.getTableData(BASEROW_TABLE_ID);
-    if(data&&data.results){
-      baserowData=data.results;
-      renderBaserowTable();
-      showToast('Data Baserow disinkron');
-      startBaserowRealtimeListener();
-    }
-  }catch(e){console.error('Baserow init error:',e);}
-}
-
-function startBaserowRealtimeListener(){
-  if(!baserow)return;
-  baserowWebSocket=baserow.setupRealtimeListener(BASEROW_TABLE_ID,(msg)=>{
-    if(msg.type==='row_create'){baserowData.push(msg.row);renderBaserowTable();playSound('click');}
-    else if(msg.type==='row_update'){const idx=baserowData.findIndex(r=>r.id===msg.row.id);if(idx>=0){baserowData[idx]=msg.row;renderBaserowTable();}}
-    else if(msg.type==='row_delete'){baserowData=baserowData.filter(r=>r.id!==msg.row_id);renderBaserowTable();}
-  });
-}
-
-async function addBaserowRow(rowData){
-  if(!baserow){showToast('Baserow tidak dikonfig');return;}
-  const result=await baserow.createRow(BASEROW_TABLE_ID,rowData);
-  if(result){showToast('Baris Baserow ditambah');initBaserowSync();}
-  else{showToast('Gagal tambah baris Baserow');}
-}
-
-async function updateBaserowRow(rowId,rowData){
-  if(!baserow){showToast('Baserow tidak dikonfig');return;}
-  const result=await baserow.updateRow(BASEROW_TABLE_ID,rowId,rowData);
-  if(result){showToast('Baris Baserow dikemas kini');initBaserowSync();}
-  else{showToast('Gagal kemaskini baris Baserow');}
-}
-
-async function deleteBaserowRow(rowId){
-  if(!baserow){showToast('Baserow tidak dikonfig');return;}
-  const success=await baserow.deleteRow(BASEROW_TABLE_ID,rowId);
-  if(success){showToast('Baris Baserow dipadam');initBaserowSync();}
-  else{showToast('Gagal padam baris Baserow');}
-}
-
-function renderBaserowTable(){
-  const container=document.getElementById('baserowTableContainer');
-  if(!container)return;
-  if(!baserowData.length){container.innerHTML='<div style="text-align:center;color:var(--muted);padding:2rem;">Tiada data Baserow</div>';return;}
-  const cols=baserowData.length>0?Object.keys(baserowData[0]):[];
-  let html='<table style="width:100%;border-collapse:collapse;font-family:var(--font-ui);"><thead><tr>';
-  cols.forEach(col=>{html+=`<th style="border-bottom:1px solid rgba(108,99,255,0.3);padding:0.5rem;text-align:left;color:var(--accent);font-size:0.75rem;">${col}</th>`;});
-  html+='<th style="border-bottom:1px solid rgba(108,99,255,0.3);padding:0.5rem;text-align:center;">Tindakan</th></tr></thead><tbody>';
-  baserowData.forEach((row,i)=>{
-    html+='<tr style="border-bottom:1px solid rgba(108,99,255,0.1);hover:background:rgba(108,99,255,0.05);">';
-    cols.forEach(col=>{html+=`<td style="padding:0.6rem;font-size:0.85rem;color:var(--text);">${row[col]||'-'}</td>`;});
-    html+=`<td style="text-align:center;"><button class="btn btn-danger btn-sm" onclick="deleteBaserowRow(${row.id})">Padam</button></td></tr>`;
-  });
-  html+='</tbody></table>';
-  container.innerHTML=html;
-}
-
-function displayBaserowStats(){
-  if(!baserowData.length)return;
-  const statsEl=document.getElementById('baserowStats');
-  if(!statsEl)return;
-  statsEl.innerHTML=`<div class="stat-card"><div class="stat-number">${baserowData.length}</div><div class="stat-label">Jumlah Rekod Baserow</div></div>`;
-}
-
-function openAddUserModal(){showToast('Fungsi tambah pengguna — hubungkan ke Supabase Auth');}
-function openAddAdminModal(){showToast('Fungsi tambah super admin — hubungkan ke Supabase Auth');}
-function removeUser(i){showToast('Pengguna dibuang (demo)');}
-
-function switchDataTab(tab,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  if(el)el.classList.add('active');
-  ['uploads','summary','export'].forEach(t=>{const el=document.getElementById('dataTab-'+t);if(el)el.style.display=t===tab?'block':'none';});
-}
-
-function handleUpload(input,type){
-  const files=Array.from(input.files);
-  files.forEach(f=>{uploadedFiles[type].push({name:f.name,size:f.size,url:URL.createObjectURL(f),file:f});});
-  const listEl=document.getElementById('upload'+type.charAt(0).toUpperCase()+type.slice(1)+'List');
-  if(listEl){listEl.innerHTML=uploadedFiles[type].map((f,i)=>`<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid rgba(108,99,255,0.1);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-family:var(--font-ui);font-size:0.78rem;flex:1;">${f.name}</span><span style="font-family:var(--font-ui);font-size:0.7rem;color:var(--muted);">${(f.size/1024).toFixed(0)}KB</span><a href="${f.url}" target="_blank" style="color:var(--accent);font-size:0.7rem;text-decoration:none;font-family:var(--font-ui);">Lihat</a></div>`).join('');}
-  updateStats();
-}
-
-function exportWFB(fmt){
-  const data=[['Nama',document.getElementById('wfbNama').value||''],['Kem/Jab',document.getElementById('wfbKem').value||''],['Bahagian',document.getElementById('wfbBahagian').value||''],['Bulan',document.getElementById('wfbBulan').value||'']];
-  downloadData(data,fmt,'WFB_Timecard');
-}
-
-function exportTravel(fmt){downloadData(travelData.map((r,i)=>({BIL:i+1,...r})),fmt,'Log_Perjalanan');}
-function exportEnf(fmt){downloadData(enfData.map((r,i)=>({BIL:i+1,...r})),fmt,'Data_Penguatkuasa');}
-function exportAll(fmt){
-  const all={travel:travelData,enforcement:enfData,files:uploadedFiles};
-  downloadData([all],fmt,'JPVS_AllData');
-}
-
-function downloadData(data,fmt,filename){
-  let content='',mime='text/plain',ext='.txt';
-  if(fmt==='csv'||fmt==='excel'){
-    if(!data.length){showToast('Tiada data untuk dieksport');return;}
-    const keys=Object.keys(Array.isArray(data[0])?{a:1}:data[0]);
-    content=Array.isArray(data[0])?data.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'):[keys.join(','),...data.map(r=>keys.map(k=>`"${r[k]}"`).join(','))].join('\n');
-    mime='text/csv';ext='.csv';
-  }else if(fmt==='json'){
-    content=JSON.stringify(data,null,2);mime='application/json';ext='.json';
-  }else{
-    content=typeof data==='string'?data:JSON.stringify(data,null,2);
-  }
-  const blob=new Blob([content],{type:mime});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename+ext;a.click();
-  showToast(`Eksport ${ext.toUpperCase()} berjaya`);
-}
-
-function showToast(msg){
-  const t=document.createElement('div');
-  t.style.cssText='position:fixed;bottom:2rem;right:2rem;background:var(--card);border:1px solid rgba(108,99,255,0.4);border-radius:12px;padding:0.75rem 1.5rem;font-family:var(--font-ui);font-size:0.85rem;color:var(--text);z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:sectionReveal 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;align-items:center;gap:0.5rem;';
-  t.innerHTML=`<span style="color:var(--accent);">✓</span> ${msg}`;
-  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
-}
-
-function toggleProfileMenu(){
-  if(!currentUser) return;
-  showToast('Profil: '+currentUser.name+' ('+currentUser.role+')');
-}
-
-// ─── SUPABASE DATA HELPERS ────────────────────────────────────────────────────
-
-function sbHeaders(){
-  // Read token from localStorage (set by inline supabase client)
-  let token = '';
-  try {
-    const s = JSON.parse(localStorage.getItem('jpvs_session') || 'null');
-    token = (s && s.access_token) ? s.access_token : '';
-  } catch(e){}
-  return {
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation'
-  };
-}
-
-// Map DB row → local travelData object
-function dbRowToTravel(r){
-  return {
-    _id: r.id,
-    tarikh: r.tarikh || '',
-    masapergi: r.masa_pergi || '',
-    masabalik: r.masa_balik || '',
-    pemandu: r.pemandu || '',
-    tujuan: r.tujuan || '',
-    pelulus: r.pelulus || '',
-    pengguna: r.pengguna || '',
-    odomula: parseFloat(r.odometer_mula) || 0,
-    odoakhir: parseFloat(r.odometer_akhir) || 0,
-    jarak: parseFloat(r.jarak_km) || 0,
-    liter: parseFloat(r.liter) || 0,
-    kos: parseFloat(r.kos_rm) || 0,
-    resit: r.no_resit || '',
-    nota: r.nota || ''
-  };
-}
-
-// Map local travelData object → DB columns
-function travelToDb(rec){
-  return {
-    user_id: currentUser.id,
-    tarikh: rec.tarikh || null,
-    masa_pergi: rec.masapergi || null,
-    masa_balik: rec.masabalik || null,
-    pemandu: rec.pemandu,
-    tujuan: rec.tujuan,
-    pelulus: rec.pelulus,
-    pengguna: rec.pengguna,
-    odometer_mula: rec.odomula,
-    odometer_akhir: rec.odoakhir,
-    liter: rec.liter,
-    kos_rm: rec.kos,
-    no_resit: rec.resit,
-    nota: rec.nota
-  };
-}
-
-// Map DB row → local enfData object
-function dbRowToEnf(r){
-  return {
-    _id: r.id,
-    tahun: r.tahun, bulan: r.bulan,
-    penguatkuasa: r.penguatkuasa, kategori: r.kategori,
-    nopolis: r.no_polis, tarikh: r.tarikh, masa: r.masa,
-    lokasi: r.lokasi, kesalahan: r.kesalahan,
-    undang: r.undang_undang, noip: r.no_ip, jenis: r.jenis_rampasan,
-    lembu: r.lembu||0, kerbau: r.kerbau||0, kambing: r.kambing||0,
-    bebiri: r.bebiri||0, babi: r.babi||0, ayam: r.ayam||0,
-    klembu: r.k_lembu||0, kkerbau: r.k_kerbau||0, kkambing: r.k_kambing||0,
-    kbabi: r.k_babi||0, kbabisb: r.k_babi_sb||0, kayam: r.k_ayam||0,
-    pitik: r.pitik||0, payam: r.p_ayam||0, pbabi: r.p_babi||0,
-    tin: r.tin||0, anjing: r.anjing||0, kucing: r.kucing||0,
-    arnab: r.arnab||0, burung: r.burung||0, hamster: r.hamster||0,
-    lain: r.lain_lain||'0',
-    jkdr: r.jml_kenderaan||0, jpengangkut: r.jml_pengangkut||0,
-    rmek: parseFloat(r.rm_ek)||0, rmkdr: parseFloat(r.rm_kdr)||0,
-    rmpengangkut: parseFloat(r.rm_pengangkut)||0, rmlain: parseFloat(r.rm_lain)||0,
-    rmnilai: parseFloat(r.rm_nilai_total)||0,
-    serahan: r.serahan, catatan: r.catatan
-  };
-}
-
-// Map local enfData object → DB columns
-function enfToDb(rec){
-  return {
-    user_id: currentUser.id,
-    tahun: parseInt(rec.tahun)||new Date().getFullYear(),
-    bulan: rec.bulan, penguatkuasa: rec.penguatkuasa,
-    kategori: rec.kategori, no_polis: rec.nopolis,
-    tarikh: rec.tarikh||null, masa: rec.masa||null,
-    lokasi: rec.lokasi, kesalahan: rec.kesalahan,
-    undang_undang: rec.undang, no_ip: rec.noip,
-    jenis_rampasan: rec.jenis,
-    lembu: rec.lembu, kerbau: rec.kerbau, kambing: rec.kambing,
-    bebiri: rec.bebiri, babi: rec.babi, ayam: rec.ayam,
-    k_lembu: rec.klembu, k_kerbau: rec.kkerbau, k_kambing: rec.kkambing,
-    k_babi: rec.kbabi, k_babi_sb: rec.kbabisb, k_ayam: rec.kayam,
-    pitik: rec.pitik, p_ayam: rec.payam, p_babi: rec.pbabi,
-    tin: rec.tin, anjing: rec.anjing, kucing: rec.kucing,
-    arnab: rec.arnab, burung: rec.burung, hamster: rec.hamster,
-    lain_lain: String(rec.lain||'0'),
-    jml_kenderaan: rec.jkdr, jml_pengangkut: rec.jpengangkut,
-    rm_ek: rec.rmek, rm_kdr: rec.rmkdr,
-    rm_pengangkut: rec.rmpengangkut, rm_lain: rec.rmlain,
-    serahan: rec.serahan, catatan: rec.catatan
-  };
-}
-
-// Load all data from Supabase for the logged-in user
-async function loadUserData(){
-  if(!currentUser || !currentUser.id){ renderTravelTable(); renderEnfTable([]); updateStats(); return; }
-  showToast('Memuatkan data...');
-  try {
-    // Travel logs
-    const tRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/travel_logs?user_id=eq.${currentUser.id}&order=tarikh.desc`,
-      { headers: sbHeaders() }
-    );
-    if(tRes.ok){ travelData = (await tRes.json()).map(dbRowToTravel); }
-    else { console.warn('travel_logs fetch:', await tRes.text()); travelData = []; }
-
-    // Enforcement cases
-    const eRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/enforcement_cases?user_id=eq.${currentUser.id}&order=tarikh.desc`,
-      { headers: sbHeaders() }
-    );
-    if(eRes.ok){ enfData = (await eRes.json()).map(dbRowToEnf); }
-    else { console.warn('enforcement_cases fetch:', await eRes.text()); enfData = []; }
-
-    renderTravelTable();
-    renderEnfTable(enfData);
-    updateStats();
-
-    // Populate bulan filter
-    const bulanSel = document.getElementById('enfFilterBulan');
-    if(bulanSel){
-      enfData.forEach(r => {
-        if(r.bulan && ![...bulanSel.options].find(o=>o.value===r.bulan)){
-          const o = document.createElement('option'); o.value=r.bulan; o.textContent=r.bulan; bulanSel.appendChild(o);
-        }
-      });
-    }
-    showToast('Data berjaya dimuatkan');
-  } catch(e){
-    console.error('loadUserData error:', e);
-    showToast('Gagal memuatkan data');
-    travelData = []; enfData = [];
-    renderTravelTable(); renderEnfTable([]); updateStats();
-  }
-}
-// ─────────────────────────────────────────────────────────────────────────────
-
-
-// INIT
-initParticles();
-setInterval(updateClock,1000);
-updateClock();
-if(isBaserowConfigured){initBaserowSync();}
-
-// Always start on login screen — no auto-login
-document.getElementById('appShell').style.display = 'none';
-document.getElementById('loginScreen').style.display = 'flex';
-document.getElementById('loginScreen').style.opacity = '1';
-
-// supabase is always available — register auth state listener
-supabase.auth.onAuthStateChange(async (event, session) => {
-  if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
-    if(isLoggedIn) return;
-
-    // Step 1: upsert profile (non-blocking)
-    upsertUser(session.user, session.access_token);
-
-    // Step 2: fetch role from DB
-    const dbRole = await fetchUserRole(session.user.id, session.access_token);
-
-    // Step 3: build user and show app
-    buildCurrentUser(session.user, dbRole);
-    doLoginSuccess();
-
-  } else if(event === 'SIGNED_OUT'){
-    isLoggedIn = false;
-    currentUser = null;
-    document.getElementById('appShell').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('loginScreen').style.opacity = '1';
-  }
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  loadGoogleAPI();
 });
+
+// ========== PUBLIC API ==========
+
+// Call this when user logs in
+async function initializeGoogleSheets() {
+  try {
+    if (!googleSheets) {
+      console.error('Google Sheets not ready');
+      return false;
+    }
+    
+    await googleSheets.authorize();
+    
+    // Initialize sync services
+    realtimeSync = new RealtimeSyncService(googleSheets);
+    enforcementSync = new EnforcementDataSync(googleSheets);
+    
+    // Listen for data changes
+    realtimeSync.onDataChange((data) => {
+      console.log('📊 Google Sheets updated:', data.length, 'rows');
+      // Update UI with new data
+      updateEnforcementTable(data);
+    });
+    
+    // Start syncing
+    realtimeSync.startSync();
+    
+    console.log('✓ Google Sheets realtime sync initialized');
+    return true;
+  } catch (err) {
+    console.error('Failed to initialize Google Sheets:', err);
+    return false;
+  }
+}
+
+// Send timecard entry
+async function sendTimecard(entry) {
+  if (!enforcementSync) {
+    console.error('Sync service not ready');
+    return false;
+  }
+  return await enforcementSync.sendTimecard(entry);
+}
+
+// Send enforcement data
+async function sendEnforcement(action) {
+  if (!enforcementSync) {
+    console.error('Sync service not ready');
+    return false;
+  }
+  return await enforcementSync.sendEnforcement(action);
+}
+
+// Get data from Google Sheets
+async function getGoogleSheetsData() {
+  if (!googleSheets) {
+    console.error('Google Sheets not ready');
+    return [];
+  }
+  return await googleSheets.getData();
+}
+
+// Update enforcement table with data from Google Sheets
+function updateEnforcementTable(data) {
+  const tbody = document.querySelector('.enf-table tbody');
+  if (!tbody || !data || data.length < 2) return; // Skip header row
+  
+  tbody.innerHTML = '';
+  
+  // Skip first row (headers)
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const tr = document.createElement('tr');
+    
+    tr.innerHTML = `
+      <td>${row[0] || ''}</td>
+      <td>${row[1] || ''}</td>
+      <td>${row[2] || ''}</td>
+      <td>${row[3] || ''}</td>
+      <td><span class="badge badge-blue">${row[4] || 'N/A'}</span></td>
+      <td>${row[5] || ''}</td>
+    `;
+    
+    tbody.appendChild(tr);
+  }
+}
+
+// Stop sync when user logs out
+function stopGoogleSheetsSync() {
+  if (realtimeSync) {
+    realtimeSync.stopSync();
+  }
+  console.log('✓ Google Sheets sync stopped');
+}
+
+console.log('✓ Google Sheets realtime integration script loaded');
 </script>
-</body>
-</html>
+
+<!-- 
+  USAGE IN YOUR FORM:
+  ==================
+  
+  1. Add this to your login handler:
+     await initializeGoogleSheets();
+  
+  2. When submitting enforcement form:
+     const result = await sendEnforcement({
+       time: document.getElementById('timeInput').value,
+       location: document.getElementById('locationInput').value,
+       type: 'Enforcement Action',
+       details: document.getElementById('notesInput').value,
+       officer: currentUser.name
+     });
+  
+  3. When submitting timecard:
+     const result = await sendTimecard({
+       checkIn: checkInTime,
+       checkOut: checkOutTime,
+       location: location,
+       status: status,
+       notes: notes,
+       officer: officerName
+     });
+  
+  4. On page unload:
+     window.addEventListener('beforeunload', () => {
+       stopGoogleSheetsSync();
+     });
+-->
