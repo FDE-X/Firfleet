@@ -1149,12 +1149,17 @@ async function doLogin(){
   }
 
   const btn = document.querySelector('.btn-google');
-  if(btn){ btn.disabled = true; btn.style.opacity = '0.7'; btn.textContent = '⏳ Menghubungi Google...'; }
+  if(btn){
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.innerHTML = '⏳ Menghubungi Google...';
+  }
 
-  const redirectTo = window.location.href.split('#')[0].split('?')[0];
+  // Use exact GitHub Pages URL as redirect — must match Supabase dashboard "Redirect URLs"
+  const redirectTo = 'https://fde-x.github.io/Firfleet/';
 
   try {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectTo,
@@ -1166,10 +1171,10 @@ async function doLogin(){
       showLoginError('Log masuk Google gagal: ' + error.message);
       resetLoginButton();
     }
-    // On success the browser navigates to Google — nothing more runs here
+    // On success browser navigates away to Google — nothing more runs here
   } catch(e){
     console.error('doLogin exception:', e);
-    showLoginError('Ralat: ' + e.message);
+    showLoginError('Ralat tidak dijangka: ' + e.message);
     resetLoginButton();
   }
 }
