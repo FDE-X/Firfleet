@@ -768,8 +768,8 @@ tr.ot td{background:rgba(255,215,0,0.06);}
 </div>
 
 <script>
-const SUPABASE_URL = 'https://<YOUR_SUPABASE_PROJECT>.supabase.co';
-const SUPABASE_ANON_KEY = '<YOUR_SUPABASE_ANON_KEY>';
+const SUPABASE_URL = 'https://kavuylmowzmdupyilhdk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdnV5bG1vd3ptZHVweWlsaGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjI4OTQsImV4cCI6MjA5MzM5ODg5NH0.mSD9Mnpa1HavWMMeIi6RH427ru4xsUwsdKDcHw6QVII';
 const isSupabaseConfigured = !SUPABASE_URL.includes('<YOUR_') && !SUPABASE_ANON_KEY.includes('<YOUR_');
 const supabase = isSupabaseConfigured && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
