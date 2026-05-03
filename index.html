@@ -770,25 +770,128 @@ tr.ot td{background:rgba(255,215,0,0.06);}
   </div>
 </div>
 
-<!-- Supabase loaded just before main script to guarantee window.supabase is available -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<!-- No external Supabase CDN needed — using direct REST API calls -->
 
 <script>
 const SUPABASE_URL = 'https://kavuylmowzmdupyilhdk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthdnV5bG1vd3ptZHVweWlsaGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjI4OTQsImV4cCI6MjA5MzM5ODg5NH0.mSD9Mnpa1HavWMMeIi6RH427ru4xsUwsdKDcHw6QVII';
 
-// Initialize Supabase client
-let supabase = null;
-try {
-  if(window.supabase && window.supabase.createClient){
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✓ Supabase client initialized');
-  } else {
-    console.error('✗ window.supabase not available');
+// ─── Minimal Supabase Auth client (no CDN required) ───────────────────────────
+// Implements only what we need: signInWithOAuth, getSession, signOut, onAuthStateChange
+const supabase = (() => {
+  const BASE = SUPABASE_URL + '/auth/v1';
+  const HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
+  let _session = null;
+  let _listeners = [];
+
+  // Persist session in localStorage
+  const STORAGE_KEY = 'jpvs_session';
+  function saveSession(s){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch(e){} }
+  function loadSession(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); }catch(e){ return null; } }
+  function clearSession(){ try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} }
+  function notify(event, session){ _listeners.forEach(fn=>{ try{ fn(event,session); }catch(e){} }); }
+
+  // Parse session from URL hash (after OAuth redirect)
+  function parseHashSession(){
+    const hash = window.location.hash.substring(1);
+    if(!hash) return null;
+    const params = {};
+    hash.split('&').forEach(p=>{ const [k,v]=p.split('='); if(k) params[k]=decodeURIComponent(v||''); });
+    if(params.access_token && params.token_type){
+      // Build a session object from hash params
+      let user = null;
+      try {
+        // Decode JWT payload (base64)
+        const payload = params.access_token.split('.')[1];
+        const decoded = JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+        user = {
+          id: decoded.sub,
+          email: decoded.email || '',
+          app_metadata: decoded.app_metadata || {},
+          user_metadata: decoded.user_metadata || {}
+        };
+      } catch(e){ console.warn('JWT decode error', e); }
+      const session = {
+        access_token: params.access_token,
+        refresh_token: params.refresh_token || '',
+        expires_in: parseInt(params.expires_in||'3600'),
+        token_type: params.token_type,
+        user: user
+      };
+      // Clean hash from URL without reload
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      return session;
+    }
+    return null;
   }
-} catch(e) {
-  console.error('✗ Supabase init error:', e);
-}
+
+  const auth = {
+    onAuthStateChange(callback){
+      _listeners.push(callback);
+      // Fire immediately with current session
+      const s = _session || loadSession();
+      if(s){ _session = s; callback('INITIAL_SESSION', s); }
+      else { callback('INITIAL_SESSION', null); }
+      return { data: { subscription: { unsubscribe(){ _listeners = _listeners.filter(f=>f!==callback); } } } };
+    },
+
+    async getSession(){
+      if(_session) return { data: { session: _session }, error: null };
+      // Check URL hash first (OAuth redirect)
+      const hashSession = parseHashSession();
+      if(hashSession){ _session = hashSession; saveSession(hashSession); notify('SIGNED_IN', hashSession); return { data: { session: hashSession }, error: null }; }
+      // Check localStorage
+      const stored = loadSession();
+      if(stored){ _session = stored; return { data: { session: stored }, error: null }; }
+      return { data: { session: null }, error: null };
+    },
+
+    async signInWithOAuth({ provider, options }){
+      // Build the Supabase OAuth URL directly
+      const redirectTo = (options && options.redirectTo) || window.location.href;
+      const params = new URLSearchParams({
+        provider: provider,
+        redirect_to: redirectTo,
+        scopes: 'email profile'
+      });
+      const oauthUrl = `${BASE}/authorize?${params.toString()}`;
+      // Navigate to Google via Supabase
+      window.location.href = oauthUrl;
+      return { data: {}, error: null };
+    },
+
+    async signOut(){
+      const token = _session && _session.access_token;
+      _session = null;
+      clearSession();
+      notify('SIGNED_OUT', null);
+      if(token){
+        try {
+          await fetch(`${BASE}/logout`, {
+            method: 'POST',
+            headers: { ...HEADERS, 'Authorization': `Bearer ${token}` }
+          });
+        } catch(e){}
+      }
+      return { error: null };
+    }
+  };
+
+  // Auto-detect session on load (hash from OAuth redirect)
+  (async ()=>{
+    const hashSession = parseHashSession();
+    if(hashSession){ _session = hashSession; saveSession(hashSession); setTimeout(()=>notify('SIGNED_IN', hashSession), 0); }
+    else {
+      const stored = loadSession();
+      if(stored){ _session = stored; setTimeout(()=>notify('INITIAL_SESSION', stored), 0); }
+      else { setTimeout(()=>notify('INITIAL_SESSION', null), 0); }
+    }
+  })();
+
+  return { auth };
+})();
+
+console.log('✓ Supabase auth client ready (no CDN)');
 /*
   Supabase SQL schema for JPVS enforcement portal
   ------------------------------------------------
@@ -1092,17 +1195,7 @@ function resetLoginButton(){
 // -----------------------------------------------------------------------
 
 async function handleSupabaseAuth(){
-  if(!supabase){
-    // Check if it's a CDN load failure vs config issue
-    if(!window.supabase){
-      showLoginError('Gagal memuatkan pustaka auth. Semak sambungan internet atau lumpuhkan ad-blocker, kemudian muat semula halaman.');
-    } else {
-      showLoginError('Sistem tidak dikonfigurasi. Hubungi pentadbir.');
-    }
-    const btn = document.querySelector('.btn-google');
-    if(btn){ btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; }
-    return;
-  }
+  // supabase is always available (no CDN dependency)
   try {
     const { data, error } = await supabase.auth.getSession();
     if(error) console.warn('getSession:', error.message);
@@ -1127,15 +1220,6 @@ function buildCurrentUser(user){
 async function doLogin(){
   try { playSound('click'); } catch(e){}
 
-  if(!supabase){
-    if(!window.supabase){
-      showLoginError('Gagal memuatkan pustaka auth. Semak sambungan internet atau lumpuhkan ad-blocker, kemudian muat semula halaman.');
-    } else {
-      showLoginError('Sistem tidak dikonfigurasi. Hubungi pentadbir.');
-    }
-    return;
-  }
-
   // Block if opened as file:// — OAuth requires http/https
   if(window.location.protocol === 'file:'){
     showLoginError('Sila buka melalui pelayan web (http://localhost) bukan terus dari folder fail.');
@@ -1149,7 +1233,7 @@ async function doLogin(){
     btn.innerHTML = '⏳ Menghubungi Google...';
   }
 
-  // Use exact GitHub Pages URL as redirect — must match Supabase dashboard "Redirect URLs"
+  // Exact GitHub Pages URL — must match Supabase dashboard "Redirect URLs"
   const redirectTo = 'https://fde-x.github.io/Firfleet/';
 
   try {
@@ -1633,26 +1717,20 @@ document.getElementById('appShell').style.display = 'none';
 document.getElementById('loginScreen').style.display = 'flex';
 document.getElementById('loginScreen').style.opacity = '1';
 
-// Supabase v2: onAuthStateChange fires on page load with INITIAL_SESSION
-// and after OAuth redirect with SIGNED_IN — this is the primary auth handler
-if(supabase){
-  supabase.auth.onAuthStateChange((event, session) => {
-    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
-      if(isLoggedIn) return; // already logged in, skip
-      buildCurrentUser(session.user);
-      doLoginSuccess();
-    } else if(event === 'SIGNED_OUT'){
-      isLoggedIn = false;
-      currentUser = null;
-      document.getElementById('appShell').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('loginScreen').style.opacity = '1';
-    }
-  });
-} else {
-  // handleSupabaseAuth will show the "not configured" error
-  handleSupabaseAuth();
-}
+// supabase is always available — register auth state listener
+supabase.auth.onAuthStateChange((event, session) => {
+  if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user){
+    if(isLoggedIn) return;
+    buildCurrentUser(session.user);
+    doLoginSuccess();
+  } else if(event === 'SIGNED_OUT'){
+    isLoggedIn = false;
+    currentUser = null;
+    document.getElementById('appShell').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginScreen').style.opacity = '1';
+  }
+});
 </script>
 </body>
 </html>
