@@ -1,453 +1,500 @@
-<!-- 
-  GOOGLE SHEETS REALTIME INTEGRATION SCRIPT
-  Add this to your index.html just before closing </body> tag
-  
-  Configuration: Update these values
-  ===================================
--->
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Penguatkuasaan | JPVS Portal v1.0</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦅</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Noto+Sans+Malay:wght@400;600&family=Orbitron:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Stylesheet -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<script>
-// ========== GOOGLE SHEETS CONFIGURATION ==========
-const GOOGLE_CONFIG = {
-  clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
-  spreadsheetId: 'YOUR_SPREADSHEET_ID',
-  sheetName: 'Sheet1',
-  range: 'Sheet1!A:H', // Range to read/write (adjust columns as needed)
-  scope: 'https://www.googleapis.com/auth/spreadsheets',
-  discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
-};
+<div class="bg-anime"></div>
+<div class="particles" id="particles"></div>
+<div class="transition-overlay" id="transOverlay"></div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
-// ========== GOOGLE SHEETS SERVICE CLASS ==========
-class GoogleSheetsService {
-  constructor(config) {
-    this.config = config;
-    this.isAuthorized = false;
-    this.tokenClient = null;
-  }
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-logos">
+      <div class="login-logo" title="Jata Negara"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Coat_of_arms_of_Malaysia.svg/250px-Coat_of_arms_of_Malaysia.svg.png" alt="Logo Penguatkuasaan"></div>
+      <div class="login-logo" title="JPVS"><img src="https://github.com/ttv4u1/KP/raw/main/DVS.svg" alt="Logo Penguatkuasaan"></div>
+      <div class="login-logo" title="Penguatkuasaan"><img src="https://github.com/ttv4u1/KP/raw/main/Logo%20Penguatkuasa.png" alt="Logo Penguatkuasaan"></div>
+    </div>
+    <div class="login-title">SISTEM PENGUATKUASAAN</div>
+    <div class="login-subtitle">Jabatan Perkhidmatan Veterinar & Penyembelihan<br><span style="color:var(--accent)">Portal Pengurusan Bersepadu v1.0</span></div>
+    <button class="btn-google" onclick="doLogin()">
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Log Masuk dengan Google
+    </button>
+    <div class="login-footer">Sistem ini dilindungi. Akses terhad kepada kakitangan yang diberi kuasa sahaja.<br>Jabatan Perkhidmatan Veterinar &amp; Penyembelihan &copy; 2025</div>
+  </div>
+</div>
 
-  // Initialize Google API
-  async init() {
-    try {
-      await gapi.client.init({
-        apiKey: undefined, // Not needed for OAuth
-        clientId: this.config.clientId,
-        discoveryDocs: this.config.discoveryDocs,
-        scopes: [this.config.scope]
-      });
+<!-- APP SHELL -->
+<div id="appShell" style="display:none;">
 
-      // Set token client for OAuth
-      this.tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: this.config.clientId,
-        scope: this.config.scope,
-        callback: (resp) => {
-          this.isAuthorized = true;
-          console.log('✓ Google OAuth authorized');
-        }
-      });
+<!-- ANNOUNCEMENT BANNER -->
+<div class="ann-banner" id="annBanner">
+  <span style="color:var(--gold);font-weight:700;flex-shrink:0;">📢 PENGUMUMAN:</span>
+  <span class="ann-scroll" id="annText">Selamat datang ke Portal Penguatkuasaan JPVS. Sila kemaskini rekod anda dengan segera. Mesyuarat bulanan pada 15hb setiap bulan. | Welcome to JPVS Enforcement Portal. Please update your records promptly.</span>
+</div>
 
-      console.log('✓ Google Sheets Service initialized');
-    } catch (err) {
-      console.error('Failed to initialize Google Sheets:', err);
-    }
-  }
+<!-- NAVBAR -->
+<nav id="mainNav">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="hamburger" onclick="toggleSidebar()" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="nav-logos">
+      <div class="nav-logo-item" title="Jata Negara"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Coat_of_arms_of_Malaysia.svg/250px-Coat_of_arms_of_Malaysia.svg.png" alt="Logo Penguatkuasaan"></div>
+      <div class="nav-logo-item" title="JPVS"><img src="https://github.com/ttv4u1/KP/raw/main/DVS.svg" alt="Logo Penguatkuasaan"></div>
+      <div class="nav-logo-item" title="Penguatkuasaan"><img src="https://github.com/ttv4u1/KP/raw/main/Logo%20Penguatkuasa.png" alt="Logo Penguatkuasaan"></div>
+    </div>
+    <div class="nav-brand">
+      <div class="nav-title">Sistem PEgurusan Data FirFleet</div>
+      <div class="nav-subtitle">Portal Pengurusan Bersepadu</div>
+    </div>
+    <span class="version-badge">v1.0</span>
+  </div>
+  <div class="nav-actions">
+    <div style="text-align:center;">
+      <div class="clock-display" id="navClock">--:--:--</div>
+      <div class="clock-period" id="navPeriod">--</div>
+    </div>
+    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+    <div class="user-profile" id="userProfile" onclick="toggleProfileMenu()">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-name" id="userName">...</div>
+    </div>
+    <button id="logoutBtn" class="btn btn-danger btn-sm" onclick="signOut()" title="Log Keluar" style="display:flex;align-items:center;gap:0.4rem;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Log Keluar
+    </button>
+  </div>
+</nav>
+<div class="sidebar" id="sidebar">
+  <!-- Home / Back to Login -->
+  <a class="home-btn" onclick="signOut()" title="Kembali ke halaman utama / Log Keluar">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Halaman Utama
+  </a>
+  <div class="nav-section-title" data-i18n="nav.main">UTAMA</div>
+  <div class="nav-item active" onclick="showSection('dashboard',this)" data-i18n="nav.dashboard">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+    Dashboard
+  </div>
+  <div class="nav-section-title" data-i18n="nav.records">REKOD</div>
+  <div class="nav-item" onclick="showSection('wfb',this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+    <span data-i18n="nav.wfb">Kad Waktu (WFB)</span>
+  </div>
+  <div class="nav-item" onclick="showSection('travel',this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <span data-i18n="nav.travel">Log Perjalanan</span>
+  </div>
+  <div class="nav-item" onclick="showSection('enforcement',this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <span data-i18n="nav.enforcement">Data Penguatkuasa</span>
+  </div>
+  <div class="nav-section-title" data-i18n="nav.data">DATA & EKSPORT</div>
+  <div class="nav-item" onclick="showSection('data',this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+    <span data-i18n="nav.data">Data & Muat Turun</span>
+  </div>
+  <div class="nav-section-title" data-i18n="nav.admin">PENTADBIRAN</div>
+  <div class="nav-item" id="adminNavItem" onclick="showSection('admin',this)">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <span data-i18n="nav.admin">Super Admin</span>
+  </div>
+</div>
 
-  // Request OAuth authorization
-  async authorize() {
-    if (gapi.client.getToken() === null) {
-      this.tokenClient.requestAccessToken({prompt: 'consent'});
-    } else {
-      this.tokenClient.requestAccessToken({prompt: ''});
-    }
-  }
+<!-- MAIN CONTENT -->
+<div class="main">
 
-  // Check authorization status
-  isAuthorized() {
-    return gapi.client.getToken() !== null;
-  }
+<!-- DASHBOARD -->
+<div class="section active" id="sec-dashboard">
+  <div class="dashboard-hero reveal">
+    <div>
+      <div class="hero-greeting" id="greetingText">Selamat Pagi, Pengguna</div>
+      <div class="hero-role">
+        <span class="realtime-dot"></span>
+        <span id="userRoleDisplay">Pegawai Penguatkuasa</span> — JPVS Portal
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="showSection('wfb',null)">Rekod Waktu</button>
+        <button class="btn btn-accent" onclick="showSection('enforcement',null)">Tambah Kes</button>
+        <button class="btn btn-gold" onclick="showSection('travel',null)">Log Perjalanan</button>
+      </div>
+    </div>
+    <div style="text-align:center;flex-shrink:0;">
+      <div class="clock-display" id="dashClock" style="font-size:3rem;">--:--:--</div>
+      <div class="clock-period" id="dashPeriod" style="font-size:1.2rem;">--</div>
+      <div class="clock-date" id="dashDate">--</div>
+    </div>
+  </div>
 
-  // Get data from Google Sheet
-  async getData(range = null) {
-    try {
-      range = range || this.config.range;
-      const response = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: this.config.spreadsheetId,
-        range: range
-      });
+  <div class="stats-grid reveal">
+    <div class="stat-card"><div class="stat-number" id="statCases">0</div><div class="stat-label">Kes Bulan Ini</div></div>
+    <div class="stat-card"><div class="stat-number" id="statRampasan">RM 0</div><div class="stat-label">Nilai Rampasan</div></div>
+    <div class="stat-card"><div class="stat-number" id="statTrips">0</div><div class="stat-label">Perjalanan</div></div>
+    <div class="stat-card"><div class="stat-number" id="statKM">0 km</div><div class="stat-label">Jumlah KM</div></div>
+  </div>
 
-      const values = response.result.values || [];
-      console.log('✓ Retrieved', values.length, 'rows from Google Sheets');
-      return values;
-    } catch (err) {
-      console.error('Error reading Google Sheets:', err);
-      return [];
-    }
-  }
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="reveal">
+    <div class="card">
+      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Rampasan Bulan Ini</div>
+      <div class="chart-box" id="dashChart"></div>
+    </div>
+    <div class="card">
+      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Pengumuman Terkini</div>
+      <div id="annDisplay" style="font-family:var(--font-ui);font-size:0.85rem;color:var(--text);line-height:1.6;"></div>
+    </div>
+  </div>
+</div>
 
-  // Append data to Google Sheet
-  async appendData(values) {
-    try {
-      const resource = {
-        values: Array.isArray(values[0]) ? values : [values]
-      };
+<!-- WFB TIME CARD -->
+<div class="section" id="sec-wfb">
+  <div class="page-header reveal">
+    <div class="page-title">Kad Mencatat Waktu (WFB)</div>
+    <div class="page-subtitle">Rekod kehadiran dan waktu bekerja — <span id="wfbMonth">--</span></div>
+  </div>
+  <div class="card reveal" style="margin-bottom:1.5rem;">
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+      <div class="form-group"><label>Nama</label><input type="text" id="wfbNama" placeholder="Nama Penuh" onchange="triggerWFBHeaderSave()"></div>
+      <div class="form-group"><label>Kem./Jab.</label><input type="text" id="wfbKem" placeholder="Kementerian/Jabatan" onchange="triggerWFBHeaderSave()"></div>
+      <div class="form-group"><label>Bahagian/Seksyen</label><input type="text" id="wfbBahagian" placeholder="Bahagian" onchange="triggerWFBHeaderSave()"></div>
+      <div class="form-group"><label>Bulan</label><input type="month" id="wfbBulan" onchange="renderWFB()"></div>
+    </div>
+  </div>
+  <div class="export-bar reveal">
+    <span class="export-label">Eksport:</span>
+    <button class="btn btn-success btn-sm" onclick="exportWFB('csv')">CSV</button>
+    <button class="btn btn-primary btn-sm" onclick="exportWFB('excel')">Excel</button>
+    <button class="btn btn-accent btn-sm" onclick="exportWFB('json')">JSON</button>
+    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
+  </div>
+  <div class="timecard-grid reveal" id="wfbGrid"></div>
+</div>
 
-      const response = await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: this.config.spreadsheetId,
-        range: this.config.range,
-        valueInputOption: 'RAW',
-        resource: resource
-      });
+<!-- TRAVEL LOG -->
+<div class="section" id="sec-travel">
+  <div class="page-header reveal">
+    <div class="page-title">Log Perjalanan</div>
+    <div class="page-subtitle">Rekod perjalanan rasmi — auto-kira jarak & kos</div>
+  </div>
+  <div class="card reveal" style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="font-family:var(--font-ui);font-size:0.8rem;font-weight:700;color:var(--accent);">Tambah Rekod Perjalanan Baharu</div>
+      <button class="btn btn-primary btn-sm" onclick="openTravelModal()">+ Tambah</button>
+    </div>
+    <div class="tlog-info-grid">
+      <div class="stat-card"><div class="stat-number" id="tlogTotalKM">0</div><div class="stat-label">Jumlah KM</div></div>
+      <div class="stat-card"><div class="stat-number" id="tlogTotalKos">RM 0</div><div class="stat-label">Jumlah Kos</div></div>
+      <div class="stat-card"><div class="stat-number" id="tlogTotalTrips">0</div><div class="stat-label">Perjalanan</div></div>
+      <div class="stat-card"><div class="stat-number" id="tlogTotalLiter">0 L</div><div class="stat-label">Jumlah Liter</div></div>
+    </div>
+  </div>
+  <div class="export-bar reveal">
+    <span class="export-label">Eksport:</span>
+    <button class="btn btn-success btn-sm" onclick="exportTravel('csv')">CSV</button>
+    <button class="btn btn-primary btn-sm" onclick="exportTravel('excel')">Excel</button>
+    <button class="btn btn-accent btn-sm" onclick="exportTravel('json')">JSON</button>
+    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
+  </div>
+  <div class="table-wrapper reveal">
+    <table id="travelTable">
+      <thead><tr>
+        <th>BIL</th><th>TARIKH</th><th>MASA PERGI</th><th>MASA BALIK</th><th>PEMANDU</th>
+        <th>TUJUAN</th><th>PELULUS</th><th>ODO MULA</th><th>ODO AKHIR</th><th>JARAK KM</th>
+        <th>LITER</th><th>KOS (RM)</th><th>NO RESIT</th><th>NOTA</th><th>TINDAKAN</th>
+      </tr></thead>
+      <tbody id="travelBody"></tbody>
+      <tfoot><tr class="total-row"><td colspan="9" style="text-align:right;font-family:var(--font-ui);font-size:0.8rem;">JUMLAH:</td><td id="tlogFtKM">0</td><td id="tlogFtL">0</td><td id="tlogFtKos">RM 0</td><td colspan="3"></td></tr></tfoot>
+    </table>
+  </div>
+</div>
 
-      console.log('✓ Data appended:', response.result.updates.updatedRows, 'rows');
-      return response;
-    } catch (err) {
-      console.error('Error appending data:', err);
-      return null;
-    }
-  }
+<!-- ENFORCEMENT DATA -->
+<div class="section" id="sec-enforcement">
+  <div class="page-header reveal">
+    <div class="page-title">Data Penguatkuasa</div>
+    <div class="page-subtitle">Rekod rampasan dan kes penguatkuasaan — <span class="realtime-dot"></span>Realtime</div>
+  </div>
+  <div class="enf-controls reveal">
+    <input type="text" class="search-input" id="enfSearch" placeholder="Cari kes, lokasi, penguatkuasa..." oninput="filterEnf()">
+    <button class="btn btn-primary" onclick="openEnfModal()">+ Tambah Kes</button>
+    <select style="background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:0.5rem 0.75rem;color:var(--text);font-family:var(--font-ui);font-size:0.8rem;outline:none;" id="enfFilterBulan" onchange="filterEnf()">
+      <option value="">Semua Bulan</option>
+    </select>
+  </div>
+  <div class="export-bar reveal">
+    <span class="export-label">Eksport:</span>
+    <button class="btn btn-success btn-sm" onclick="exportEnf('csv')">CSV</button>
+    <button class="btn btn-primary btn-sm" onclick="exportEnf('excel')">Excel</button>
+    <button class="btn btn-accent btn-sm" onclick="exportEnf('json')">JSON</button>
+    <button class="btn btn-danger btn-sm" onclick="exportEnf('txt')">Notepad</button>
+    <button class="btn btn-gold btn-sm" onclick="window.print()">Cetak</button>
+  </div>
+  <div class="table-wrapper reveal" style="max-height:60vh;overflow-y:auto;">
+    <table id="enfTable">
+      <thead>
+        <tr>
+          <th>BIL</th><th>TAHUN</th><th>BULAN</th><th>PENGUATKUASA</th><th>KATEGORI KES</th>
+          <th>NO REPOT POLIS</th><th>TARIKH</th><th>MASA</th><th>LOKASI</th><th>KESALAHAN</th>
+          <th>UNDANG-UNDANG</th><th>NO KES IP</th><th>JENIS RAMPASAN</th>
+          <th>LEMBU</th><th>KERBAU</th><th>KAMBING</th><th>BEBIRI</th><th>BABI</th><th>AYAM</th>
+          <th>K.LEMBU</th><th>K.KERBAU</th><th>K.KAMBING</th><th>K.BABI</th><th>K.BABI S/B</th>
+          <th>K.AYAM</th><th>P.ITIK S/B</th><th>P.AYAM S/B</th><th>P.BABI S/B</th>
+          <th>HAI TIN</th><th>ANJING</th><th>KUCING</th><th>ARNAB</th><th>BURUNG</th>
+          <th>HAMSTER</th><th>LAIN-LAIN</th>
+          <th>JML KDR</th><th>JML PENGANGKUT</th>
+          <th>RM (EKOR/KG)</th><th>RM (KDR)</th><th>RM (PENGANGKUT)</th>
+          <th>RM (LAIN)</th><th>JML NILAI RM</th>
+          <th>KES SERAHAN</th><th>CATATAN</th><th>TINDAKAN</th>
+        </tr>
+      </thead>
+      <tbody id="enfBody"></tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="13" style="text-align:right;">JUMLAH:</td>
+          <td id="e-lembu">0</td><td id="e-kerbau">0</td><td id="e-kambing">0</td>
+          <td id="e-bebiri">0</td><td id="e-babi">0</td><td id="e-ayam">0</td>
+          <td id="e-klembu">0</td><td id="e-kkerbau">0</td><td id="e-kkambing">0</td>
+          <td id="e-kbabi">0</td><td id="e-kbabisb">0</td><td id="e-kayam">0</td>
+          <td id="e-pitik">0</td><td id="e-payam">0</td><td id="e-pbabi">0</td>
+          <td id="e-tin">0</td><td id="e-anjing">0</td><td id="e-kucing">0</td>
+          <td id="e-arnab">0</td><td id="e-burung">0</td><td id="e-hamster">0</td>
+          <td id="e-lain">0</td><td id="e-jkdr">0</td><td id="e-jpengangkut">0</td>
+          <td id="e-rmek">RM0</td><td id="e-rmkdr">RM0</td><td id="e-rmpengangkut">RM0</td>
+          <td id="e-rmlain">RM0</td><td id="e-rmnilai">RM0</td>
+          <td colspan="3"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
 
-  // Update specific range in Google Sheet
-  async updateData(range, values) {
-    try {
-      const resource = {
-        values: Array.isArray(values[0]) ? values : [values]
-      };
+<!-- DATA & EXPORT -->
+<div class="section" id="sec-data">
+  <div class="page-header reveal">
+    <div class="page-title">Data & Muat Turun</div>
+    <div class="page-subtitle">Semua rekod, fail upload, dan eksport sistem</div>
+  </div>
+  <div class="tab-bar reveal">
+    <button class="tab active" onclick="switchDataTab('uploads',this)">Fail Upload</button>
+    <button class="tab" onclick="switchDataTab('summary',this)">Ringkasan</button>
+    <button class="tab" onclick="switchDataTab('export',this)">Eksport Penuh</button>
+  </div>
+  <div id="dataTab-uploads" class="reveal">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
+      <div class="card">
+        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Resit Minyak & TNG</div>
+        <div class="upload-zone" onclick="document.getElementById('uploadMinyak').click()">
+          <input type="file" id="uploadMinyak" accept="image/*,.pdf" multiple onchange="handleUpload(this,'minyak')">
+          <div class="upload-icon">🧾</div>
+          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG, PDF • Maks 10MB</small></div>
+        </div>
+        <div id="uploadMinyakList" style="margin-top:1rem;"></div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Odometer & Gambar Kenderaan</div>
+        <div class="upload-zone" onclick="document.getElementById('uploadOdo').click()">
+          <input type="file" id="uploadOdo" accept="image/*" multiple onchange="handleUpload(this,'odo')">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG • Maks 10MB</small></div>
+        </div>
+        <div id="uploadOdoList" style="margin-top:1rem;"></div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Fail Kes & Laporan</div>
+        <div class="upload-zone" onclick="document.getElementById('uploadKes').click()">
+          <input type="file" id="uploadKes" accept="image/*,.pdf,.doc,.docx" multiple onchange="handleUpload(this,'kes')">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Klik atau seret fail ke sini<br><small>JPG, PNG, PDF, DOC • Maks 20MB</small></div>
+        </div>
+        <div id="uploadKesList" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+  <div id="dataTab-summary" style="display:none;" class="reveal">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="sumTotalKes">0</div><div class="stat-label">Jumlah Kes</div></div>
+      <div class="stat-card"><div class="stat-number" id="sumNilaiRM">RM 0</div><div class="stat-label">Nilai Rampasan</div></div>
+      <div class="stat-card"><div class="stat-number" id="sumPerjalanan">0</div><div class="stat-label">Perjalanan</div></div>
+      <div class="stat-card"><div class="stat-number" id="sumFail">0</div><div class="stat-label">Fail Upload</div></div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;">
+      <div style="font-family:var(--font-ui);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Carta Rampasan Mengikut Jenis</div>
+      <div class="chart-box" id="summaryChart"></div>
+    </div>
+  </div>
+  <div id="dataTab-export" style="display:none;" class="reveal">
+    <div class="card">
+      <div style="font-family:var(--font-ui);font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:1.5rem;">Eksport Semua Data</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+        <button class="btn btn-success" onclick="exportAll('csv')">Eksport CSV</button>
+        <button class="btn btn-primary" onclick="exportAll('excel')">Eksport Excel</button>
+        <button class="btn btn-accent" onclick="exportAll('json')">Eksport JSON</button>
+        <button class="btn btn-danger" onclick="exportAll('txt')">Eksport Notepad</button>
+        <button class="btn btn-gold" onclick="exportAll('android')">Android Note</button>
+        <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="exportAll('ios')">iPhone Note</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-      const response = await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: this.config.spreadsheetId,
-        range: range,
-        valueInputOption: 'RAW',
-        resource: resource
-      });
+<!-- ADMIN -->
+<div class="section" id="sec-admin">
+  <div class="page-header reveal">
+    <div class="page-title">Super Admin</div>
+    <div class="page-subtitle">Pengurusan pengguna, peranan, pengumuman sistem, dan data Baserow realtime</div>
+  </div>
+  <div class="alert alert-warning reveal">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Panel ini hanya untuk Super Admin. Perubahan akan berkuat kuasa serta-merta.
+  </div>
+  <div class="admin-grid reveal">
+    <div class="admin-card">
+      <div class="admin-card-title">Senarai Pengguna</div>
+      <div id="userListAdmin"></div>
+      <button class="btn btn-primary btn-sm" style="margin-top:1rem;width:100%;" onclick="openAddUserModal()">+ Tambah Pengguna</button>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-title">Super Admin</div>
+      <div id="superAdminList"></div>
+      <button class="btn btn-gold btn-sm" style="margin-top:1rem;width:100%;" onclick="openAddAdminModal()">+ Tambah Super Admin</button>
+    </div>
+    <div class="admin-card" style="grid-column:span 1;">
+      <div class="admin-card-title">Pengumuman Sistem</div>
+      <div class="announcement-box">
+        <div class="announcement-text" id="currentAnn">Tiada pengumuman semasa</div>
+        <textarea id="newAnnText" rows="3" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(108,99,255,0.3);border-radius:8px;padding:0.6rem;color:var(--text);font-family:var(--font-body);font-size:0.85rem;resize:vertical;outline:none;margin-bottom:0.75rem;" placeholder="Taip pengumuman baharu..."></textarea>
+        <button class="btn btn-primary btn-sm" onclick="saveAnnouncement()">Simpan Pengumuman</button>
+      </div>
+    </div>
+    <div class="admin-card" style="grid-column:span 2;">
+      <div class="admin-card-title">📊 Baserow Spreadsheet Integration (Realtime)</div>
+      <div id="baserowStats" style="margin-bottom:1rem;"></div>
+      <button class="btn btn-accent btn-sm" onclick="initBaserowSync()" style="margin-bottom:1rem;width:100%;">🔄 Sinkron Baserow</button>
+      <div id="baserowTableContainer" style="max-height:300px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
 
-      console.log('✓ Data updated:', response.result.updatedRows, 'rows');
-      return response;
-    } catch (err) {
-      console.error('Error updating data:', err);
-      return null;
-    }
-  }
+</div><!-- end main -->
 
-  // Batch update (for multiple operations)
-  async batchUpdate(requests) {
-    try {
-      const response = await gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: this.config.spreadsheetId,
-        resource: { requests: requests }
-      });
+<footer class="site-footer">
+  <div>
+    <div style="font-family:var(--font-heading);font-size:1.2rem;margin-bottom:0.5rem;">JPVS Portal Footer</div>
+    <div class="footer-copy">Sistem Penguatkuasaan Data menggunakan visual baru untuk memperkukuh identiti dan pengalaman. Jabatan Perkhidmatan Veterinar &amp; Penyembelihan © 2026.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#sec-dashboard">Dashboard</a>
+    <a href="#sec-enforcement">Data Penguatkuasa</a>
+    <a href="#sec-admin">Super Admin</a>
+  </div>
+</footer>
 
-      console.log('✓ Batch update completed');
-      return response;
-    } catch (err) {
-      console.error('Error in batch update:', err);
-      return null;
-    }
-  }
+</div><!-- end appShell -->
 
-  // Get range in A1 notation
-  getRange(sheet, startRow, startCol, endRow, endCol) {
-    const colToLetter = (col) => String.fromCharCode(65 + col);
-    return `${sheet}!${colToLetter(startCol)}${startRow}:${colToLetter(endCol)}${endRow}`;
-  }
-}
+<!-- MODALS -->
+<div class="modal-overlay" id="travelModal">
+  <div class="modal">
+    <div class="modal-title">Tambah Log Perjalanan</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Tarikh</label><input type="date" id="tl-tarikh"></div>
+      <div class="form-group"><label>Masa Pergi</label><input type="time" id="tl-masapergi"></div>
+      <div class="form-group"><label>Masa Balik</label><input type="time" id="tl-masabalik"></div>
+      <div class="form-group"><label>Pemandu</label><input type="text" id="tl-pemandu" placeholder="Nama pemandu"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Tujuan Perjalanan</label><input type="text" id="tl-tujuan" placeholder="Destinasi / tujuan rasmi"></div>
+      <div class="form-group"><label>Pelulus</label><input type="text" id="tl-pelulus" placeholder="Nama pelulus"></div>
+      <div class="form-group"><label>Pengguna Kenderaan</label><input type="text" id="tl-pengguna" placeholder="Nama pengguna"></div>
+      <div class="form-group"><label>Odometer Mula (km)</label><input type="number" id="tl-odomula" placeholder="0" oninput="calcOdo()"></div>
+      <div class="form-group"><label>Odometer Akhir (km)</label><input type="number" id="tl-odoakhir" placeholder="0" oninput="calcOdo()"></div>
+      <div class="form-group"><label>Jarak KM (Auto)</label><input type="number" id="tl-jarak" readonly style="opacity:0.6;"></div>
+      <div class="form-group"><label>Liter Minyak</label><input type="number" id="tl-liter" placeholder="0.00" step="0.01" oninput="calcFuelCost()"></div>
+      <div class="form-group"><label>Kos RM (Auto)</label><input type="number" id="tl-kos" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label>No. Resit</label><input type="text" id="tl-resit" placeholder="e.g. RCP-2025-001"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Nota</label><textarea id="tl-nota" rows="2" placeholder="Nota tambahan..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="closeModal('travelModal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTravelLog()">Simpan</button>
+    </div>
+  </div>
+</div>
 
-// ========== REALTIME SYNC SERVICE ==========
-class RealtimeSyncService {
-  constructor(sheetsService) {
-    this.sheets = sheetsService;
-    this.syncInterval = 5000; // Sync every 5 seconds
-    this.isSyncing = false;
-    this.lastSyncData = null;
-    this.syncCallbacks = [];
-  }
+<div class="modal-overlay" id="enfModal" style="z-index:8001;">
+  <div class="modal" style="width:min(900px,95vw);">
+    <div class="modal-title">Tambah Data Penguatkuasa</div>
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+      <div class="form-group"><label>Tahun</label><input type="number" id="enf-tahun" value="2025" min="2020" max="2099"></div>
+      <div class="form-group"><label>Bulan</label>
+        <select id="enf-bulan"><option value="">Pilih</option><option>Januari</option><option>Februari</option><option>Mac</option><option>April</option><option>Mei</option><option>Jun</option><option>Julai</option><option>Ogos</option><option>September</option><option>Oktober</option><option>November</option><option>Disember</option></select>
+      </div>
+      <div class="form-group"><label>Penguatkuasa</label><input type="text" id="enf-penguatkuasa" placeholder="Nama"></div>
+      <div class="form-group"><label>Kategori Kes</label>
+        <select id="enf-kategori"><option value="">Pilih</option><option>Kesalahan Penyembelihan</option><option>Kesalahan Pengangkutan</option><option>Kesalahan Penjualan</option><option>Kesalahan Import/Eksport</option><option>Kesalahan Premis</option><option>Lain-lain</option></select>
+      </div>
+      <div class="form-group"><label>No. Repot Polis</label><input type="text" id="enf-nopolis" placeholder="e.g. P/001/2025"></div>
+      <div class="form-group"><label>Tarikh Kejadian</label><input type="date" id="enf-tarikh"></div>
+      <div class="form-group"><label>Masa Kejadian</label><input type="time" id="enf-masa"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Lokasi Kejadian</label><input type="text" id="enf-lokasi" placeholder="Alamat lengkap lokasi"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Kesalahan</label><input type="text" id="enf-kesalahan" placeholder="Perihal kesalahan"></div>
+      <div class="form-group"><label>Undang-undang</label><input type="text" id="enf-undang" placeholder="e.g. Akta 309 S.8"></div>
+      <div class="form-group"><label>No. Kes IP</label><input type="text" id="enf-noip" placeholder="e.g. IP/001/2025"></div>
+      <div class="form-group"><label>Jenis Rampasan</label><input type="text" id="enf-jenis" placeholder="e.g. Haiwan hidup"></div>
+    </div>
+    <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Butiran Rampasan (Kuantiti)</div><div class="divider-line"></div></div>
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">
+      <div class="form-group"><label>Lembu</label><input type="number" id="enf-lembu" value="0" min="0"></div>
+      <div class="form-group"><label>Kerbau</label><input type="number" id="enf-kerbau" value="0" min="0"></div>
+      <div class="form-group"><label>Kambing</label><input type="number" id="enf-kambing" value="0" min="0"></div>
+      <div class="form-group"><label>Bebiri</label><input type="number" id="enf-bebiri" value="0" min="0"></div>
+      <div class="form-group"><label>Babi</label><input type="number" id="enf-babi" value="0" min="0"></div>
+      <div class="form-group"><label>Ayam</label><input type="number" id="enf-ayam" value="0" min="0"></div>
+      <div class="form-group"><label>Karkas Lembu</label><input type="number" id="enf-klembu" value="0" min="0"></div>
+      <div class="form-group"><label>Karkas Kerbau</label><input type="number" id="enf-kkerbau" value="0" min="0"></div>
+      <div class="form-group"><label>Karkas Kambing</label><input type="number" id="enf-kkambing" value="0" min="0"></div>
+      <div class="form-group"><label>Karkas Babi</label><input type="number" id="enf-kbabi" value="0" min="0"></div>
+      <div class="form-group"><label>K.Babi S/Beku</label><input type="number" id="enf-kbabisb" value="0" min="0"></div>
+      <div class="form-group"><label>Karkas Ayam</label><input type="number" id="enf-kayam" value="0" min="0"></div>
+      <div class="form-group"><label>Prd. Itik S/Beku</label><input type="number" id="enf-pitik" value="0" min="0"></div>
+      <div class="form-group"><label>Prd. Ayam S/Beku</label><input type="number" id="enf-payam" value="0" min="0"></div>
+      <div class="form-group"><label>Prd. Babi S/Beku</label><input type="number" id="enf-pbabi" value="0" min="0"></div>
+      <div class="form-group"><label>Haiwan (Tin)</label><input type="number" id="enf-tin" value="0" min="0"></div>
+      <div class="form-group"><label>Anjing</label><input type="number" id="enf-anjing" value="0" min="0"></div>
+      <div class="form-group"><label>Kucing</label><input type="number" id="enf-kucing" value="0" min="0"></div>
+      <div class="form-group"><label>Arnab</label><input type="number" id="enf-arnab" value="0" min="0"></div>
+      <div class="form-group"><label>Burung</label><input type="number" id="enf-burung" value="0" min="0"></div>
+      <div class="form-group"><label>Hamster</label><input type="number" id="enf-hamster" value="0" min="0"></div>
+      <div class="form-group"><label>Lain-lain</label><input type="text" id="enf-lain" value="0"></div>
+    </div>
+    <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Kenderaan & Nilai (RM)</div><div class="divider-line"></div></div>
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+      <div class="form-group"><label>Jml Kenderaan</label><input type="number" id="enf-jkdr" value="0" min="0" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>Jml Pengangkut/Kontena</label><input type="number" id="enf-jpengangkut" value="0" min="0" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>RM (Ekor/KG)</label><input type="number" id="enf-rmek" value="0" step="0.01" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>RM (Kenderaan)</label><input type="number" id="enf-rmkdr" value="0" step="0.01" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>RM (Pengangkut)</label><input type="number" id="enf-rmpengangkut" value="0" step="0.01" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>RM (Lain-lain)</label><input type="number" id="enf-rmlain" value="0" step="0.01" oninput="calcEnfTotal()"></div>
+      <div class="form-group"><label>JUMLAH NILAI RM (Auto)</label><input type="number" id="enf-rmnilai" readonly style="opacity:0.7;color:var(--gold);font-weight:700;"></div>
+      <div class="form-group"><label>Kes Serahan</label><select id="enf-serahan"><option value="">Pilih</option><option>Mahkamah</option><option>Kompaun</option><option>Dilepaskan</option><option>Dalam Siasatan</option></select></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Catatan</label><textarea id="enf-catatan" rows="2"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="background:rgba(255,255,255,0.1);color:var(--text);" onclick="closeModal('enfModal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveEnfData()">Simpan Kes</button>
+    </div>
+  </div>
 
-  // Register callback for data changes
-  onDataChange(callback) {
-    this.syncCallbacks.push(callback);
-  }
-
-  // Start realtime sync polling
-  startSync() {
-    console.log('🔄 Starting realtime sync...');
-    this.syncLoop();
-  }
-
-  // Stop realtime sync
-  stopSync() {
-    console.log('⏸️ Stopping realtime sync');
-    this.isSyncing = false;
-  }
-
-  // Main sync loop
-  async syncLoop() {
-    this.isSyncing = true;
-    while (this.isSyncing) {
-      try {
-        await this.sync();
-        await new Promise(resolve => setTimeout(resolve, this.syncInterval));
-      } catch (err) {
-        console.error('Sync error:', err);
-        await new Promise(resolve => setTimeout(resolve, this.syncInterval));
-      }
-    }
-  }
-
-  // Perform single sync
-  async sync() {
-    try {
-      const data = await this.sheets.getData();
-      
-      // Check if data changed
-      if (JSON.stringify(data) !== JSON.stringify(this.lastSyncData)) {
-        this.lastSyncData = data;
-        
-        // Trigger all callbacks
-        this.syncCallbacks.forEach(callback => {
-          try {
-            callback(data);
-          } catch (err) {
-            console.error('Callback error:', err);
-          }
-        });
-
-        // Show realtime indicator
-        this.showSyncIndicator();
-      }
-    } catch (err) {
-      console.error('Sync error:', err);
-    }
-  }
-
-  // Show visual indicator that sync occurred
-  showSyncIndicator() {
-    const indicator = document.getElementById('realtimeIndicator');
-    if (indicator) {
-      indicator.classList.add('pulse');
-      setTimeout(() => indicator.classList.remove('pulse'), 1000);
-    }
-  }
-}
-
-// ========== ENFORCEMENT DATA SYNC ==========
-class EnforcementDataSync {
-  constructor(sheetsService) {
-    this.sheets = sheetsService;
-  }
-
-  // Format timecard entry for Google Sheets
-  formatEntry(entry) {
-    const now = new Date();
-    return [
-      now.toLocaleDateString('ms-MY'),
-      entry.checkIn || '',
-      entry.checkOut || '',
-      entry.location || '',
-      entry.status || 'Active',
-      entry.notes || '',
-      entry.officer || 'System',
-      new Date().toISOString()
-    ];
-  }
-
-  // Send timecard data to Google Sheets
-  async sendTimecard(entry) {
-    try {
-      const values = [this.formatEntry(entry)];
-      await this.sheets.appendData(values);
-      console.log('✓ Timecard synced to Google Sheets');
-      return true;
-    } catch (err) {
-      console.error('Error syncing timecard:', err);
-      return false;
-    }
-  }
-
-  // Send enforcement action to Google Sheets
-  async sendEnforcement(action) {
-    try {
-      const entry = {
-        checkIn: action.time || new Date().toLocaleTimeString(),
-        location: action.location || 'N/A',
-        status: action.type || 'Enforcement',
-        notes: action.details || '',
-        officer: action.officer || 'System'
-      };
-      return await this.sendTimecard(entry);
-    } catch (err) {
-      console.error('Error syncing enforcement:', err);
-      return false;
-    }
-  }
-
-  // Sync all local data to Google Sheets
-  async syncAllData(dataArray) {
-    try {
-      const values = dataArray.map(entry => this.formatEntry(entry));
-      if (values.length > 0) {
-        await this.sheets.appendData(values);
-        console.log('✓', values.length, 'entries synced to Google Sheets');
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Error batch syncing:', err);
-      return false;
-    }
-  }
-}
-
-// ========== INITIALIZATION ==========
-let googleSheets, realtimeSync, enforcementSync;
-
-// Load Google API library
-function loadGoogleAPI() {
-  const script = document.createElement('script');
-  script.src = 'https://accounts.google.com/gsi/client';
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
-
-  const gapiScript = document.createElement('script');
-  gapiScript.src = 'https://apis.google.com/js/api.js';
-  gapiScript.onload = () => {
-    gapi.load('client', async () => {
-      googleSheets = new GoogleSheetsService(GOOGLE_CONFIG);
-      await googleSheets.init();
-      console.log('✓ Google Sheets API ready');
-    });
-  };
-  document.head.appendChild(gapiScript);
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-  loadGoogleAPI();
-});
-
-// ========== PUBLIC API ==========
-
-// Call this when user logs in
-async function initializeGoogleSheets() {
-  try {
-    if (!googleSheets) {
-      console.error('Google Sheets not ready');
-      return false;
-    }
-    
-    await googleSheets.authorize();
-    
-    // Initialize sync services
-    realtimeSync = new RealtimeSyncService(googleSheets);
-    enforcementSync = new EnforcementDataSync(googleSheets);
-    
-    // Listen for data changes
-    realtimeSync.onDataChange((data) => {
-      console.log('📊 Google Sheets updated:', data.length, 'rows');
-      // Update UI with new data
-      updateEnforcementTable(data);
-    });
-    
-    // Start syncing
-    realtimeSync.startSync();
-    
-    console.log('✓ Google Sheets realtime sync initialized');
-    return true;
-  } catch (err) {
-    console.error('Failed to initialize Google Sheets:', err);
-    return false;
-  }
-}
-
-// Send timecard entry
-async function sendTimecard(entry) {
-  if (!enforcementSync) {
-    console.error('Sync service not ready');
-    return false;
-  }
-  return await enforcementSync.sendTimecard(entry);
-}
-
-// Send enforcement data
-async function sendEnforcement(action) {
-  if (!enforcementSync) {
-    console.error('Sync service not ready');
-    return false;
-  }
-  return await enforcementSync.sendEnforcement(action);
-}
-
-// Get data from Google Sheets
-async function getGoogleSheetsData() {
-  if (!googleSheets) {
-    console.error('Google Sheets not ready');
-    return [];
-  }
-  return await googleSheets.getData();
-}
-
-// Update enforcement table with data from Google Sheets
-function updateEnforcementTable(data) {
-  const tbody = document.querySelector('.enf-table tbody');
-  if (!tbody || !data || data.length < 2) return; // Skip header row
-  
-  tbody.innerHTML = '';
-  
-  // Skip first row (headers)
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
-    const tr = document.createElement('tr');
-    
-    tr.innerHTML = `
-      <td>${row[0] || ''}</td>
-      <td>${row[1] || ''}</td>
-      <td>${row[2] || ''}</td>
-      <td>${row[3] || ''}</td>
-      <td><span class="badge badge-blue">${row[4] || 'N/A'}</span></td>
-      <td>${row[5] || ''}</td>
-    `;
-    
-    tbody.appendChild(tr);
-  }
-}
-
-// Stop sync when user logs out
-function stopGoogleSheetsSync() {
-  if (realtimeSync) {
-    realtimeSync.stopSync();
-  }
-  console.log('✓ Google Sheets sync stopped');
-}
-
-console.log('✓ Google Sheets realtime integration script loaded');
-</script>
-
-<!-- 
-  USAGE IN YOUR FORM:
-  ==================
-  
-  1. Add this to your login handler:
-     await initializeGoogleSheets();
-  
-  2. When submitting enforcement form:
-     const result = await sendEnforcement({
-       time: document.getElementById('timeInput').value,
-       location: document.getElementById('locationInput').value,
-       type: 'Enforcement Action',
-       details: document.getElementById('notesInput').value,
-       officer: currentUser.name
-     });
-  
-  3. When submitting timecard:
-     const result = await sendTimecard({
-       checkIn: checkInTime,
-       checkOut: checkOutTime,
-       location: location,
-       status: status,
-       notes: notes,
-       officer: officerName
-     });
-  
-  4. On page unload:
-     window.addEventListener('beforeunload', () => {
-       stopGoogleSheetsSync();
-     });
--->
+<!-- JavaScript -->
+<script src="app.js"></script>
+</body>
+</html>
